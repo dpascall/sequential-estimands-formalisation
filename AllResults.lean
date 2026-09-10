@@ -1,0 +1,69 @@
+import SequentialLearning.AbsorbingMSE
+import SequentialLearning.AbsorbingMSEFromClasses
+import SequentialLearning.AbsorptionOracle
+import SequentialLearning.AbsorptionOracleResults
+import SequentialLearning.BinaryOracleGap
+import SequentialLearning.BinaryOracleRCD
+import SequentialLearning.BreakEvenCriterion
+import SequentialLearning.ClosedDisplacementResults
+import SequentialLearning.ClosedBinaryOracleRCD
+import SequentialLearning.ClosedHilbertOracleRCD
+import SequentialLearning.ClosedIncreasingLoss
+import SequentialLearning.ConditionalStochasticDomination
+import SequentialLearning.CurrentAndRemaining
+import SequentialLearning.DiscrepancyWeighting
+import SequentialLearning.DisplacementSharpness
+import SequentialLearning.ExactCriterion
+import SequentialLearning.ExactMSEDecomposition
+import SequentialLearning.FixedEstimandMSE
+import SequentialLearning.FixedEstimandMSEClosed
+import SequentialLearning.FixedTargetLearning
+import SequentialLearning.FlagSpace
+import SequentialLearning.FlagSpaceCouplingLift
+import SequentialLearning.FrechetPosteriorDisplacementBound
+import SequentialLearning.FrechetPredictableDisplacementEnvelope
+import SequentialLearning.FrechetRefinement
+import SequentialLearning.FrechetRiskWellPosedness
+import SequentialLearning.FrechetWassersteinLipschitz
+import SequentialLearning.HilbertLearningCriterion
+import SequentialLearning.HilbertLevyUpward
+import SequentialLearning.HilbertOracleRCD
+import SequentialLearning.IncreasingLoss
+import SequentialLearning.MSEHierarchy
+import SequentialLearning.MSEHierarchyDynamics
+import SequentialLearning.ManuscriptAlignment
+import SequentialLearning.NoisyObservationModels
+import SequentialLearning.ObservedProcess
+import SequentialLearning.OracleHilbertGap
+import SequentialLearning.PosteriorDisplacementBound
+import SequentialLearning.PosteriorDisplacementInfrastructure
+import SequentialLearning.PolishProbabilityMeasure
+import SequentialLearning.PolishWasserstein2Measurability
+import SequentialLearning.PredictableDisplacementEnvelope
+import SequentialLearning.ProbabilisticExactCriterion
+import SequentialLearning.ProbabilisticHilbertOracle
+import SequentialLearning.PseudometricCompletion
+import SequentialLearning.ReducibleIrreducible
+import SequentialLearning.RotationFamilyProperties
+import SequentialLearning.SameEstimandImpossibility
+import SequentialLearning.StrictOracleGap
+import SequentialLearning.StructuralEstimandClasses
+import SequentialLearning.StructuralWitnesses
+import SequentialLearning.TaxonomyProcessResults
+import SequentialLearning.TailSupermartingale
+import SequentialLearning.TerminalThreeWayRefinement
+import SequentialLearning.ThreeWayRefinement
+import SequentialLearning.Wasserstein2
+import SequentialLearning.Impossibility
+
+/-!
+# All current formalisation results
+
+This import aggregator names every one of the 41 source modules supplied for
+the Phase 0 baseline, the three modules added in Phase 1, the two modules added
+in Phase 2, the four Phase 3 impossibility modules, the three Phase 4
+absorption-oracle closure modules, the Phase 5 alignment interface, the
+same-estimand impossibility repair, the closed increasing-loss interface, and
+the unconditional Boolean flag-space Wasserstein lift.
+Building this module therefore compiles the complete current formalisation.
+-/

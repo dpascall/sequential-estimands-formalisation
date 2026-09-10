@@ -1,0 +1,26 @@
+cff-version: 1.2.0
+message: >-
+  Please cite this software using the metadata below and the exact release URL
+  or commit. This is an early research release under active revision.
+type: software
+title: "SequentialLearning: Lean formalisation of sequential estimands"
+authors:
+  - family-names: Pascall
+    given-names: "David J."
+    affiliation: "MRC Biostatistics Unit, University of Cambridge"
+version: "0.1.0-alpha.1"
+date-released: "2026-09-10"
+abstract: >-
+  Lean 4 developments for sequential estimands and learning, including a
+  geometric taxonomy, Frechet risk and variance, information and movement
+  identities, Hilbert decompositions, Wasserstein displacement bounds,
+  absorption-oracle results, and finite counterexamples. This early snapshot
+  accompanies a working manuscript; correspondence revisions are documented
+  in docs/STATUS.md.
+keywords:
+  - sequential estimands
+  - formal verification
+  - Lean 4
+  - mathematical statistics
+  - conditional expectation
+  - Wasserstein distance

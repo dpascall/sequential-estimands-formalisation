@@ -1,0 +1,171 @@
+import AllResults
+
+/-!
+# Axiom audit for manuscript-facing declarations
+
+Each declaration associated with a currently formalised master result is
+checked below. Lean elaboration fails if a listed declaration is absent, and
+the command output records its transitive axioms.
+-/
+
+-- Vwellposed
+#print axioms SequentialLearning.frechetRootRisk_finite_everywhere_iff
+#print axioms SequentialLearning.frechetVariance_eq_iInf_dense
+#print axioms SequentialLearning.posteriorFrechetVariance_ae_eq
+#print axioms SequentialLearning.posteriorFrechetRisk_toReal_ae_eq_condExp_of_reference
+#print axioms SequentialLearning.posteriorFrechet_finite_and_integrable
+
+-- masterlemma
+#print axioms SequentialLearning.frechetRefinementGain_wellPosed
+
+-- fixedlearning
+#print axioms SequentialLearning.fixedTarget_learning
+#print axioms SequentialLearning.fixedTarget_refinement
+
+-- oraclegap
+#print axioms SequentialLearning.actual_binary_oracle_frechet_refinement_closed
+
+-- maincriterion
+#print axioms SequentialLearning.probabilistic_exact_one_step_learning_criterion
+
+-- increment
+#print axioms SequentialLearning.residual_after_increment
+
+-- hilbcriterion
+#print axioms SequentialLearning.hilbert_one_step_learning_criterion
+
+-- resolved
+#print axioms SequentialLearning.resolved_increment_learning
+
+-- reducible
+#print axioms SequentialLearning.hilbert_reducible_irreducible_decomposition
+#print axioms SequentialLearning.conditional_innovation_series
+#print axioms SequentialLearning.predictableIrreducibleVariance_eq_zero_iff
+
+-- currentremaining
+#print axioms SequentialLearning.current_target_and_remaining_change
+
+-- psilip
+#print axioms SequentialLearning.frechetRootRisk_le_add_wasserstein2_add_dist
+#print axioms SequentialLearning.frechetRootRisk_toReal_abs_sub_le_dist
+#print axioms SequentialLearning.sqrt_frechetVariance_abs_sub_le_wasserstein2
+
+-- displacement
+#print axioms SequentialLearning.frechetVariance_completedLaw
+#print axioms SequentialLearning.regularConditionalLaw_completedKernel
+#print axioms MeasureTheory.secondCountableTopology_probabilityMeasure
+#print axioms MeasureTheory.opensMeasurableSpace_probabilityMeasure
+#print axioms SequentialLearning.wasserstein2_lowerSemicontinuous
+#print axioms SequentialLearning.wasserstein2LawMeasurable_of_polish
+#print axioms SequentialLearning.wasserstein2LawMeasurable_pseudometricCompletion
+#print axioms SequentialLearning.measurable_posteriorDisplacementENN_closed
+#print axioms SequentialLearning.posteriorDisplacementENN_ae_eq_of_pairRCDs
+#print axioms SequentialLearning.posteriorDisplacement_sq_le_condExp
+#print axioms SequentialLearning.posteriorDisplacement_memLp_two_closed
+#print axioms SequentialLearning.integral_posteriorDisplacement_sq_le_closed
+
+-- dispbound
+#print axioms SequentialLearning.frechet_posterior_displacement_bound_closed
+
+-- dispsharp
+#print axioms SequentialLearning.frechetVariance_difference_le_displacement_envelope
+#print axioms SequentialLearning.frechetVariance_displacement_envelope_sharp
+
+-- dispenvelope
+#print axioms SequentialLearning.frechet_predictable_displacement_envelope_closed
+
+-- breakeven
+#print axioms SequentialLearning.frechet_break_even_criterion_closed
+
+-- rotprops
+#print axioms SequentialLearning.unique_rotation_angle_sequence
+#print axioms SequentialLearning.rotation_family_one_step_formulas
+
+-- tailorder
+#print axioms SequentialLearning.HypotheticalSequentialEstimand.StructuralPresentation.monotoneClass_conditional_stochastic_domination_sequence
+
+-- tailsupermart
+#print axioms SequentialLearning.HypotheticalSequentialEstimand.StructuralPresentation.monotoneClass_conditional_tail_supermartingale
+#print axioms SequentialLearning.conditional_tail_refinement
+
+-- tailloss
+#print axioms SequentialLearning.monotone_nonnegativeExtension
+#print axioms SequentialLearning.measurable_nonnegativeExtension
+#print axioms SequentialLearning.conditional_increasing_loss_order_nonnegative
+#print axioms SequentialLearning.conditional_increasing_loss_supermartingale_nonnegative
+#print axioms SequentialLearning.HypotheticalSequentialEstimand.StructuralPresentation.monotoneClass_conditional_increasing_loss_supermartingale
+
+-- threeway
+#print axioms SequentialLearning.threeway
+
+-- oraclewelldef
+#print axioms SequentialLearning.absorption_oracle_well_defined
+
+-- oraclestrict
+#print axioms SequentialLearning.oraclestrict
+
+-- oraclehilbert
+#print axioms SequentialLearning.oraclehilbert
+
+-- msedecomp
+#print axioms SequentialLearning.exact_mse_decomposition
+
+-- biasweight
+#print axioms SequentialLearning.discrepancy_weighting_of_bias
+
+-- msehierarchy
+#print axioms SequentialLearning.HypotheticalSequentialEstimand.StructuralPresentation.monotoneClass_mean_squared_error_hierarchy_complete
+
+-- mseabsorbing
+#print axioms SequentialLearning.HypotheticalSequentialEstimand.StructuralPresentation.absorbingClass_process_persistence_event
+#print axioms SequentialLearning.HypotheticalSequentialEstimand.StructuralPresentation.absorbingClass_process_mse_bound
+
+-- msefixed
+#print axioms SequentialLearning.HypotheticalSequentialEstimand.StructuralPresentation.fixedClass_process_mse_corollary
+
+-- taxonomy
+#print axioms SequentialLearning.HypotheticalSequentialEstimand.canonicalConstraintFamily_greatest
+#print axioms SequentialLearning.HypotheticalSequentialEstimand.StructuralPresentation.existsUnique_estimandClass
+#print axioms SequentialLearning.HypotheticalSequentialEstimand.StructuralPresentation.metric_not_mixedMonotone
+#print axioms SequentialLearning.HypotheticalSequentialEstimand.StructuralPresentation.metric_not_nonabsorbingMonotone
+
+-- flagspace
+#print axioms SequentialLearning.FlagSpace.measurableSet_flag_eq
+#print axioms SequentialLearning.FlagSpace.frechetVariance_eq_project
+#print axioms SequentialLearning.FlagSpace.wasserstein2_project_le
+#print axioms SequentialLearning.FlagSpace.attachFlagKernel_comp_project
+#print axioms SequentialLearning.FlagSpace.liftCoupling_map_values
+#print axioms SequentialLearning.FlagSpace.transportL2Cost_liftCoupling
+#print axioms SequentialLearning.FlagSpace.couplingsLift
+#print axioms SequentialLearning.FlagSpace.wasserstein2_eq_project
+
+-- flagadmissible
+#print axioms SequentialLearning.StructuralWitnesses.admissibleFlagProcess
+#print axioms SequentialLearning.Phase3.admissible_flag_process
+
+-- observationmodels
+#print axioms SequentialLearning.NoisyObservationModel.card_latentState
+#print axioms SequentialLearning.NoisyObservationModel.posteriorVarianceOne_eq
+#print axioms SequentialLearning.NoisyObservationModel.expectedVarianceTwo_eq
+#print axioms SequentialLearning.NoisyObservationModel.both_verdicts
+
+-- witnesses
+#print axioms SequentialLearning.StructuralWitnesses.witnesses
+#print axioms SequentialLearning.StructuralWitnesses.classEventsMeasurable
+
+-- bothverdicts
+#print axioms SequentialLearning.Phase3.bothverdicts
+#print axioms SequentialLearning.canonicalConditionalLaw_isRCD
+#print axioms SequentialLearning.SameEstimandImpossibility.stageLaw_isRCD
+#print axioms SequentialLearning.SameEstimandImpossibility.stageFrechetVariance_eq_hilbert
+#print axioms SequentialLearning.SameEstimandImpossibility.flagged_uninformative_all_stages
+#print axioms SequentialLearning.SameEstimandImpossibility.flagged_uninformative_all_transitions
+#print axioms SequentialLearning.SameEstimandImpossibility.flagged_information_term
+#print axioms SequentialLearning.SameEstimandImpossibility.flagged_movement_term
+#print axioms SequentialLearning.SameEstimandImpossibility.flagged_noisy_verdict
+#print axioms SequentialLearning.SameEstimandImpossibility.bothverdicts
+
+-- impossibility
+#print axioms SequentialLearning.SameEstimandImpossibility.classEventsMeasurable
+#print axioms SequentialLearning.Phase5.impossibility
+#print axioms SequentialLearning.SameEstimandImpossibility.impossibility

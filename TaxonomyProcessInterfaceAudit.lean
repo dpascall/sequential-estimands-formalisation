@@ -1,0 +1,18 @@
+import SequentialLearning.TaxonomyProcessResults
+
+/-!
+# Phase 2 interface audit
+
+The printed types are checked mechanically by
+`scripts/check_taxonomy_process_interfaces.sh`.  Canonical class-facing
+results must expose the process bundle and `HasClass`, not the structural
+properties that class membership already entails.
+-/
+
+#check SequentialLearning.HypotheticalSequentialEstimand.StructuralPresentation.absorbingClass_process_persistence_event
+#check SequentialLearning.HypotheticalSequentialEstimand.StructuralPresentation.monotoneClass_conditional_stochastic_domination_sequence
+#check SequentialLearning.HypotheticalSequentialEstimand.StructuralPresentation.monotoneClass_conditional_tail_supermartingale
+#check SequentialLearning.HypotheticalSequentialEstimand.StructuralPresentation.monotoneClass_conditional_increasing_loss_supermartingale
+#check SequentialLearning.HypotheticalSequentialEstimand.StructuralPresentation.monotoneClass_mean_squared_error_hierarchy_complete
+#check SequentialLearning.HypotheticalSequentialEstimand.StructuralPresentation.absorbingClass_process_mse_bound
+#check SequentialLearning.HypotheticalSequentialEstimand.StructuralPresentation.fixedClass_process_mse_corollary

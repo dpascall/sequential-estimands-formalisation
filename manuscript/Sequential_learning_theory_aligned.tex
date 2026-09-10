@@ -1,0 +1,1610 @@
+\documentclass{article}
+\usepackage{graphicx} % Required for inserting images
+\usepackage{amsmath}
+\usepackage{amsfonts}
+\usepackage{natbib}
+\usepackage{amsthm}
+
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
+\usepackage{lmodern}
+\usepackage{geometry}
+\geometry{margin=1in}
+\usepackage{setspace}
+\doublespacing  % comment out for single spacing
+\usepackage{graphicx}
+\usepackage{amsmath, amssymb, amsthm}
+\usepackage{booktabs}
+\usepackage{caption}
+\usepackage{authblk} 
+\usepackage{natbib}
+\usepackage{hyperref}
+\usepackage{multirow}
+\usepackage{subcaption}
+\usepackage{algorithm}
+\usepackage{algpseudocode}
+\usepackage{xcolor}
+\usepackage{lineno}
+\usepackage{bbm}
+\usepackage{tcolorbox}
+\hypersetup{
+    colorlinks=true,
+    linkcolor=blue,
+    citecolor=blue,
+    urlcolor=blue
+}
+\usepackage{doi}
+\usepackage[printonlyused]{acronym}
+\usepackage{tikz}
+\usetikzlibrary{positioning, arrows.meta, decorations.pathreplacing, shapes.geometric, arrows.meta, positioning, calc, shadows.blur, backgrounds, fit}
+
+\newcommand{\Var}{\mathrm{Var}_{\mathbb{P}}}
+\newcommand{\Cov}{\mathrm{Cov}_{\mathbb{P}}}
+\newcommand{\E}{\mathbb{E}_{\mathbb{P}}}
+\newcommand{\F}{\mathcal{F}}
+\newcommand{\G}{\mathcal{G}}
+\newcommand{\I}{\mathcal{I}}
+\newcommand{\B}{\mathcal{B}}
+\newcommand{\U}{\mathcal{U}}
+\newcommand{\1}{\mathbbm{1}}
+\newtheorem{prop}{Proposition}
+\newtheorem{definition}{Definition}
+\newtheorem{remark}{Remark}
+\newtheorem{construction}{Construction}
+\newtheorem{theorem}{Theorem}
+\newtheorem{lemma}{Lemma}
+\newtheorem{cor}{Corollary}
+
+\title{Sequential learning theory for Markov genealogy processes}
+\author[1]{David J. Pascall}
+\affil[1]{MRC Biostatistics Unit, University of Cambridge, Cambridge, UK}
+\date{}
+
+\begin{document}
+
+\maketitle
+\section{Mathematical setup}
+We work on a probability space $(\Omega,\mathcal{U},\mathbb{P})$ supporting a random element $\zeta$.
+
+\[\zeta = (\Theta,\Lambda)\]
+
+We define the law $\mathbb{P}$ as follows:
+\begin{gather*}
+    \Theta \sim P_\pi\\
+    h(\Theta)=\{Y_i\}_{i=1}^{f(\Theta)}\\
+    \Lambda\mid\Theta \sim Q_\Theta\\
+    Q_\Theta \in \mathcal{P}(\mathrm{Sym}(f(\Theta)))
+\end{gather*}
+
+Let $\Theta$ be the random variable describing the complete latent state generated under an arbitrary generative distribution $P_\pi$. We limit the focus to processes that generate finite populations. Let $f(\Theta)$ be the deterministic function of $\Theta$ counting the number of observed elements, and $z(\Theta)$ be the deterministic function counting all elements in the full latent population, so $f(\Theta)\leq z(\Theta)$. Let $h(\Theta)$ be the deterministic function extracting the set of observed data, $\{Y_i\}_{i=1}^{f(\Theta)}$ from the full data within $\Theta$, $\{Y_i\}_{i=1}^{z(\Theta)}$. $\Lambda|\Theta$ is distributed according to an arbitrary probability kernel $Q_\Theta$ over $\mathrm{Sym}(f(\Theta))$.
+
+We use $\Lambda$ to define an ordering of the data, and then work with the natural filtration on these data. This ordering is an auxiliary revelation order describing the order in which the analyst observes the data. It does not preclude the generative distribution $P_\pi$ from producing intrinsically ordered data; it only permits the analyst to observe those data in a different order.
+For $n\in \mathbb{N}$
+\begin{gather*}
+    D_n = (Y_{\Lambda(1)},...,Y_{\Lambda(\min(n,f(\Theta)))})\\
+    \mathcal{F}_n=\sigma(D_n).
+\end{gather*}
+By construction, $\mathcal F_n\subseteq \mathcal F_{n+1}$. The construction does not itself reveal at stage $n$ whether the $n$th observation is terminal: on $\{f(\Theta)\ge n\}$, $D_n$ has length $n$ whether $f(\Theta)=n$ or $f(\Theta)>n$. No assumption is made as to whether $f(\Theta)$ is $\mathcal{F}_n$-measurable. No realised data-revelation path proceeds beyond the length of the observed data, but the filtration is defined for all $n \in \mathbb{N}$ so that classical martingale definitions apply.
+
+We then define $\hat{\pi}_n(\cdot)=\mathbb{P}(\Theta \in \cdot|\mathcal{F}_n)$ as a version of the posterior distribution after conditioning on $D_n$, assuming that the regular conditional distributions required for this operation to be meaningful exist.
+
+\subsection*{Representation conventions}
+All conditional distributions below are represented by probability kernels. Thus a regular
+conditional distribution of an $S$-valued random element $X$ given a sub-$\sigma$-algebra
+$\mathcal A$ is a Markov kernel $\kappa_{\mathcal A}(\omega,\cdot)$ whose integrals agree with
+conditional expectations, up to almost-sure equality. Theorems that compare several conditioning
+levels quantify over the corresponding kernels and their regular-conditional-law properties; they
+do not select a canonical version.
+
+Real conditional expectations are represented by an everywhere-defined version of the usual
+$L^1$ conditional expectation, and Hilbert-valued conditional means by the corresponding Bochner
+conditional expectation. Every identity involving these versions is asserted almost surely.
+Non-negative, possibly infinite risks are first represented in $[0,\infty]$; the master
+second-moment assumptions make the posterior risks used in real-valued differences finite almost
+surely. For a binary enlargement, the two branch kernels are required to form the coarse mixture
+law and the status-selected fine law. On $\{0<p<1\}$ their second moments follow from the coarse
+mixture moment. At $p=0$ or $p=1$ the unused branch is immaterial and the oracle gap is zero, so no
+moment condition is imposed on a zero-weight branch.
+
+Now we define a taxonomy of estimands. Permutation-invariant estimands are estimands that are $\sigma(\Theta)$-measurable. For a given permutation-invariant estimand, $K=k(\Theta)$, the induced posterior on $K$ is given by the pushforward $\hat{\pi}_n^K=\hat{\pi}_n\circ k^{-1}$. Permutation-variant estimands at stage $n$ are estimands that are $\sigma(\Theta,Y_{\Lambda(1)},...,Y_{\Lambda(n)})=\sigma(\Theta,D_n)=\sigma(\Theta)\vee \F_n$-measurable and not $\sigma(\Theta)$-measurable. As $D_n$ is $\mathcal{F}_n$-measurable, a permutation-variant estimand at stage $n$, $K_n=k_n(\Theta,D_n)$, has an induced posterior given by the pushforward $\hat{\pi}_n^{K_n}=\hat{\pi}_n\circ k_n(\cdot, D_n)^{-1}$. A permutation-invariant estimand is a \textit{limit estimand}, $K_\infty$, if there exists a family of preterminal hypothetical estimands $(\widetilde K_n(\xi))_{n < z(\Theta)}$ such that $\widetilde K_n(\xi)=k_n(\Theta,Y_{\xi(1)},...,Y_{\xi(n)})$, indexed by permutations $\xi \in \mathrm{Sym}(z(\Theta))$, whose terminal estimand satisfies for every $\omega \in \Omega$ that $\widetilde K_{z(\Theta)}(\xi)(\omega) = K_\infty(\omega)
+\quad \text{for all } \xi \in \mathrm{Sym}(z(\Theta(\omega)))$. Permutation indices are understood pathwise, such that on a realisation $\omega$, $\xi$ ranges over $\mathrm{Sym}(z(\Theta(\omega)))$. That is, for every ordering of the $z(\Theta(\omega))$ observations, the terminal value of the induced sequence coincides with $K_\infty(\omega)$, and limit is used in the sense of the terminal value of that sequence. The estimands making up the family may be permutation-variant or permutation-invariant, though commonly they will be permutation-variant. We refer to these sequences as \textit{hypothetical sequential estimands}.
+\textit{Fixed estimands} are degenerate limit estimands for which $\widetilde K_n(\xi)=K_f$ for all $n$ and $\xi$. The observed sequential estimand under a realised revelation order is written $(K_n)_{n \le f(\Theta)}$.
+
+We assume that all the estimands under study take values in a measurable separable pseudometric space. Specifically, we work in the space $(S,\mathcal{I},d)$, where $(S,d)$ is the separable pseudometric space and $\mathcal{I}$ is a countably generated and countably separating $\sigma$-algebra satisfying $\mathcal{B}_d(S)\subseteq\mathcal{I}$. This potentially finer $\sigma$-algebra is used rather than the Borel pseudometric $\sigma$-algebra because this permits the measurable structure to distinguish $d(x,y)=0$ from $x=y$, something that the Borel $\sigma$-algebra, being generated from the pseudometric topology, does not.
+
+\section{Sequential estimand classes}
+\label{sec:classes}
+
+The first thing that the setup above allows us to do is classify types of estimands. Sequential estimand classes aim for a full classification of sequential estimands by relating the permutation-variant estimands in the sequential estimand to their limit estimand, $K_\infty$. The classification organises sequential estimands by the geometry of their paths: how the mismatch $d(K_\infty, \widetilde K_n(\xi))$ evolves with $n$, whether equality with $K_\infty$ is reached at intermediate steps, and whether such equality is structurally enforced once attained. Sequential estimands are first divided by whether the mismatch path is monotone. They are then divided by whether equality with the limit estimand is achievable before $z(\Theta)$ with positive probability and if it is, whether equality is structurally enforced once reached in all, some or no cases. Fixed sequential estimands are then separated into their own class of degenerate absorbing monotone estimands.
+
+To make the classification precise, we introduce the notion of a structural constraint and the associated persistence event sequence. Let $(\widetilde K_n(\xi))_{n \le z(\Theta)}$ be a hypothetical sequential estimand indexed by $\xi \in \mathrm{Sym}(z(\Theta(\omega)))$. As the estimands take values in a pseudometric space, the mismatch $d(K_\infty, \widetilde K_n(\xi))$ is well-defined. Throughout, ranges in $n$ are pathwise determined by $z(\Theta(\omega))$, so that statements involving $n \le z(\Theta)$ are understood to hold for each $n$ within the appropriate $\omega$-dependent range.
+
+A \textit{structural constraint} for $K_\infty$ is a predicate, $c$, on $\zeta$ and a given ordering $\xi$, generating a family of indicators $(c_n(\xi))_{n \le z(\Theta)}$ with each $c_n(\xi): \Omega \to \{0, 1\}$, requiring that if $(Y_{\xi(1)},...,Y_{\xi(n)})(\omega)=Y_{\xi'(1)},...,Y_{\xi'(n)})(\omega)$ then $c_n(\xi)(\omega)=c_n(\xi')(\omega)$. The latter condition ensures that predicates that depend on the future tail of $\xi$ are not admissible structural constraints. A family is called \textit{valid} when the following conditions hold for every $\omega \in \Omega$, simultaneously for every member $c$, every admissible ordering $\xi$, and every applicable stage $n$:
+
+\begin{enumerate}
+\item \textit{Value preservation under instantiation.} For each $c$ in the family and $n<z(\Theta(\omega))$, if $c_n(\xi)(\omega) = 1$ and $\widetilde K_n(\xi)(\omega) = K_\infty(\omega)$, then $\widetilde K_{n+1}(\xi)(\omega) = K_\infty(\omega)$.
+\item \textit{Structural support.} For each $c$ in the family and $n<z(\Theta(\omega))$, if $c_n(\xi)(\omega) = 1$, $\widetilde K_n(\xi)(\omega) = K_\infty(\omega)$, and $c_{n+1}(\xi)(\omega) = 0$, then $c'_{n+1}(\xi)(\omega) = 1$ for some $c'$ in the same family.
+\end{enumerate}
+
+\begin{lemma}[Existence of the greatest valid constraint family]
+\label{greatestfamily}
+Every hypothetical sequential estimand has a unique greatest valid constraint family
+$C_{K_\infty}$ under set inclusion.
+\end{lemma}
+
+\begin{proof}
+Let $C_{K_\infty}$ be the union of all valid constraint families. If $c$ belongs to this union,
+then it belongs to some valid family $C$. Value preservation for $c$ follows from validity of $C$.
+If $c$ ceases to fire after equality is reached, structural support in $C$ supplies a successor
+constraint $c'\in C$, and hence $c'\in C_{K_\infty}$. The union is therefore valid and contains
+every valid family, so it is greatest. Any two greatest families contain one another and are
+equal.
+\end{proof}
+
+The term \textit{structural} is descriptive rather than separately formalised; the formal content is carried by the value preservation requirement, which by its universality over the instantiation set captures the intuitive notion of structural enforcement. Indefinite persistence follows by induction: let $c_{n}(\xi)(\omega) = 1$, then at step $n+1$, either $c_{n+1}(\xi)(\omega) = 1$ and value preservation for $c$ extends equality to $n+2$, or $c_{n+1}(\xi)(\omega) = 0$ and structural support gives a $c' \in C_{K_\infty}$ with $c'_{n+1}(\xi)(\omega) = 1$, in which case value preservation for $c'$ extends equality to $n+2$. Iterating gives equality through to $z(\Theta(\omega))$.
+
+The \textit{hypothetical persistence event sequence} associated with $K_\infty$ is then
+\[
+\widetilde E_n(\xi)=\{\omega : \exists\, c \in C_{K_\infty} \text{ with } c_n(\xi)(\omega) = 1\} \cap \{\widetilde K_n(\xi)(\omega) = K_\infty(\omega)\}.
+\]
+That is, on $\widetilde E_n(\xi)$, some structural constraint is currently instantiated at step $n$ and equality with $K_\infty$ has been reached. The persistence event sequence is nested by construction: structural support ensures that if any constraint has fired with equality at some earlier step, some constraint in $C_{K_\infty}$ continues to fire at every subsequent step, and value preservation ensures equality is maintained. We assume $\widetilde E_n(\xi)$ is $\mathcal{U}$-measurable.
+
+The structural constraint formulation distinguishes \textit{structural persistence} from \textit{accidental persistence}, where the realised path happens to coincide with $K_\infty$ at some step without any underlying structural mechanism enforcing continuation. Structural persistence is equality with the instantiation of an element of $C_{K_\infty}$. Accidental persistence is equality without the instantiation of an element of $C_{K_\infty}$. This distinction is what separates the absorbing classes from the non-absorbing and mixed classes: absorbing classes require structural support for every instance of equality, while non-absorbing and mixed classes allow accidental equality at intermediate steps.
+
+When absorption times are discussed below, they are defined in terms of the hypothetical persistence event sequence. The observed restriction of the persistence event sequence is written $(E_n)_{n \le f(\Theta)}$, paralleling the observed sequential estimand $(K_n)_{n \le f(\Theta)}$. We assume $E_n$ is $\sigma(\Theta,D_n)$-measurable.
+
+We classify sequential estimands according to pathwise properties of their associated hypothetical sequential estimands.
+
+We say that the sequential estimand is \textit{monotonic} if for every $\omega \in \Omega$, and for all $\xi \in \mathrm{Sym}(z(\Theta(\omega)))$, the sequence $(d(K_\infty(\omega), \widetilde K_n(\xi)(\omega)))$ is non-increasing in $n$. Otherwise it is \textit{non-monotonic}.
+
+We say that equality is \textit{achievable} if the set
+\[
+\{\omega \in \Omega : \exists \xi \in \mathrm{Sym}(z(\Theta(\omega))),\ \exists n < z(\Theta(\omega)) \text{ such that } \widetilde K_n(\xi)(\omega) = K_\infty(\omega)\}
+\]
+has positive $\mathbb{P}$-measure.
+
+We say that persistence is \textit{achievable} if the set
+\[
+\{\omega \in \Omega : \exists \xi \in \mathrm{Sym}(z(\Theta(\omega))),\ \exists n < z(\Theta(\omega)) \text{ such that } \widetilde E_n(\xi)(\omega)\}
+\]
+has positive $\mathbb{P}$-measure. Equality not being achievable implies persistence is not achievable, since persistence requires equality. 
+
+We assume the events \[
+\{\omega \in \Omega : \exists \xi \in \mathrm{Sym}(z(\Theta(\omega))),\ \exists n < z(\Theta(\omega)) \text{ such that } \widetilde K_n(\xi)(\omega) = K_\infty(\omega)\}, 
+\]
+\[
+\{\omega \in \Omega : \exists \xi \in \mathrm{Sym}(z(\Theta(\omega))),\ \exists n < z(\Theta(\omega)) \text{ such that } \widetilde E_n(\xi)(\omega)\},
+\]
+\[
+    \{\omega : \exists \xi \in \mathrm{Sym}(z(\Theta(\omega))), n < z(\Theta(\omega)) \text{ such that } \widetilde K_n(\xi)(\omega)=K_\infty(\omega) \text{ and } \lnot\widetilde E_n(\xi)(\omega)\},
+\]
+are $\mathcal{U}$-measurable. 
+
+The classes are as follows:
+\begin{itemize}
+    \item \textbf{Fixed:} For every $\omega \in \Omega$, $\widetilde K_n(\xi)(\omega) = K_f(\omega)$ for all $\xi$ and $n$.
+    \item \textbf{Absorbing monotonic:} Monotonic, non-fixed estimands for which persistence is achievable, and for $\mathbb{P}$-a.e. $\omega$, for all $\xi$ and $n$,
+    \[
+    \widetilde K_n(\xi)(\omega) = K_\infty(\omega) \implies \widetilde E_n(\xi)(\omega).
+    \]
+    \item \textbf{Absorbing non-monotonic:} Non-monotonic, non-fixed estimands for which persistence is achievable, and for $\mathbb{P}$-a.e. $\omega$, for all $\xi$ and $n$,
+    \[
+    \widetilde K_n(\xi)(\omega) = K_\infty(\omega) \implies \widetilde E_n(\xi)(\omega).
+    \]
+    \item \textbf{Mixed monotonic:} Monotonic, non-fixed estimands for which persistence is achievable, and the set
+    \[
+    \{\omega : \exists \xi \in \mathrm{Sym}(z(\Theta(\omega))), n < z(\Theta(\omega)) \text{ such that } \widetilde K_n(\xi)(\omega)=K_\infty(\omega) \text{ and } \lnot\widetilde E_n(\xi)(\omega)\}
+    \]
+    has positive $\mathbb{P}$-measure.
+    \item \textbf{Mixed non-monotonic:} Non-monotonic, non-fixed estimands for which persistence is achievable, and the set
+    \[
+    \{\omega : \exists \xi \in \mathrm{Sym}(z(\Theta(\omega))), n < z(\Theta(\omega)) \text{ such that } \widetilde K_n(\xi)(\omega)=K_\infty(\omega) \text{ and } \lnot\widetilde E_n(\xi)(\omega)\}
+    \]
+    has positive $\mathbb{P}$-measure.
+    \item \textbf{Non-absorbing monotonic:} Monotonic, non-fixed estimands for which equality is achievable but persistence is not.
+    \item \textbf{Non-absorbing non-monotonic:} Non-monotonic, non-fixed estimands for which equality is achievable but persistence is not.
+    \item \textbf{Terminal monotonic:} Monotonic,  non-fixed estimands for which equality is not achievable.
+    \item \textbf{Terminal non-monotonic:} Non-monotonic, non-fixed estimands for which equality is not achievable.
+\end{itemize}
+
+The classification system introduced here assumes only that estimands take values in a pseudometric space $(S,d)$. The pseudometric is sufficient to define the mismatch $d(K_\infty(\omega), \widetilde K_n(\xi)(\omega))$ and its monotonicity, while equality with the designated limit estimand is defined literally rather than through zero pseudometric distance. This distinction is important, because it allows estimands that wander within the zero distance set for their entire path without reaching equality until the final step to be correctly classified as terminal monotonic, rather than absorbing monotonic. One consequence of this is that the classification system is dependent on the estimand-space pair, $(K,(S,d))$. To give a concrete example of this, if the space is metric rather than pseudometric, mixed monotonic and non-absorbing monotonic classes are definitionally empty, as the combination of monotonicity and the fact that under a metric $d(x,y)=0$ implies $x=y$ ensures that any equality necessarily instantiates a structural constraint. Also, as some parts of the classification quantify over all latent states, they depend on the precise stated estimand map, and do not apply to its almost sure equivalents.
+
+The classes are defined by conditions holding for every admissible revelation order, and either every (monotonicity and fixedness) or almost every (achievability of equality and persistence) latent state, so they constrain a family of hypothetical paths of which any realisation exhibits a single member. They are therefore not in general learnable by an analyst: even if the realised estimand path were $\mathcal{F}_n$-measurable, so that the analyst observed it exactly, this would still not determine class membership. Class membership must instead be established by proof from the definition of the estimand. Monotonicity requires showing that the discrepancy from the limit estimand cannot increase, for every admissible revelation order latent state. Absorption does not require identifying the full set of structural constraints: it suffices to find a subset on which value preservation under instantiation and structural support hold independently of the remainder. In the examples below we will see that these proofs are often both intuitive and easy, and well within the reach of applied researchers.
+
+\subsection{Generic learning for sequential estimands in pseudometric spaces}
+
+We can use the fact that standard learning applies to limit estimands in order to say something about learning for general phylodynamic sequential estimands, under the assumption that the target we actually care about is the limit target. 
+
+\subsection{A general refinement identity}
+
+We first establish a general result for posterior Bayes risk under
+squared-pseudometric loss with a freely chosen point estimate. This result
+does not require the existence of a Fr\'echet mean.
+
+For an $S$-valued random element $X$ and a posterior probability measure $\mu$ for $X$, define the Fr\'echet risk for the centre $s\in S$ as,  
+\[
+\phi_\mu(s)=\int_S d^2(x,s)\mu(dx)\in[0,\infty]
+\]
+and notate the square root Fr\'echet risk for the centre $s$ as $\Psi(\mu,s)=\phi_\mu(s)^{1/2}$. Then, define the Fr\'echet variance, $V(\mu)$, as the infimum of $\phi_\mu(s)$ over $S$. That is, 
+\[
+V(\mu)=\inf_{s\in S} \phi_\mu(s).
+\]
+The square root Fr\'echet variance, $V(\mu)^{1/2}$, is defined analogously as the infimum of $\Psi(\mu,s)$ over $S$.
+
+\begin{lemma}[Well-posedness of Fr\'echet risk and variance]
+\label{Vwellposed}
+Fix a countable dense $D\subset S$.
+\begin{enumerate}
+\item[(i)] For any probability measure $\mu$ on $(S,\I)$, either $\Psi(\mu,s)<\infty$ for every
+$s\in S$, or $\Psi(\mu,\cdot)\equiv\infty$; the former holds precisely when $\mu\in\mathcal{P}_2(S)$.
+\item[(ii)] $V(\mu)=\inf_{s\in D}\phi_\mu(s)$ for every probability measure $\mu$, and
+$0\le V(\mu)\le\phi_\mu(s)$ for every $s\in S$.
+\item[(iii)] If $\mu^X_\mathcal{A}$ and $\tilde\mu^X_\mathcal{A}$ are two regular conditional
+distributions of $X$ given $\mathcal{A}$, then $V(\mu^X_\mathcal{A})=V(\tilde\mu^X_\mathcal{A})$
+a.s.; so $V(X\mid\mathcal{A})$ is well defined up to a.s.\ equality.
+\item[(iv)] If $\E[d^2(X,s_0)]<\infty$ for some $s_0\in S$, then for each $s\in S$ the random
+variable $\phi_{\mu^X_\mathcal{A}}(s)$ is a version of $\E[d^2(X,s)\mid\mathcal{A}]$, and
+$V(X\mid\mathcal{A})$ is $\mathcal{A}$-measurable with $0\le V(X\mid\mathcal{A})\le
+\phi_{\mu^X_\mathcal{A}}(s_0)\in L^1$; in particular $V(X\mid\mathcal{A})<\infty$ a.s.
+\end{enumerate}
+\end{lemma}
+
+\begin{proof}
+See Appendix.
+\end{proof}
+
+\begin{lemma}[Fr\'echet variance under refinement]
+\label{masterlemma}
+Let $X$ be an $(\U,\I)$-measurable $S$-valued random element with $\E[d^2(X,s_0)]<\infty$ for some
+$s_0\in S$, and let $\mathcal{G}\subseteq\mathcal{H}\subseteq\U$ admit regular conditional
+distributions $\mu_\mathcal{G},\mu_\mathcal{H}$ of $X$. Taking $V(X\mid\mathcal{G})=V(\mu_\mathcal{G})$ and $V(X\mid\mathcal{H})=V(\mu_\mathcal{H})$, define
+\[
+\Gamma(X;\mathcal{G},\mathcal{H})=V(X\mid\mathcal{G})-\E\big[V(X\mid\mathcal{H})\mid\mathcal{G}\big]
+\]. Then, $\Gamma(X;\mathcal{G},\mathcal{H})$
+is $\mathcal{G}$-measurable, integrable, and non-negative a.s.
+\end{lemma}
+
+\begin{proof}
+Measurability and integrability are Lemma \ref{Vwellposed}(iv); fix a version $c$ of
+$\E[V(X\mid\mathcal{H})\mid\mathcal{G}]$ and a countable dense $D=\{s_k\}$.
+
+For every $\omega$ and every $s$, $\phi_{\mu_\mathcal{H}(\omega)}(s)\ge V(X\mid\mathcal{H})(\omega)$
+by Lemma \ref{Vwellposed}(ii). Taking $\E[\,\cdot\mid\mathcal{G}]$ and using Lemma
+\ref{Vwellposed}(iv) with $\mathcal{G}\subseteq\mathcal{H}$ and the tower property,
+\[
+c\;\le\;\E\big[\phi_{\mu_\mathcal{H}}(s_k)\mid\mathcal{G}\big]
+=\E\big[d^2(X,s_k)\mid\mathcal{G}\big]=\phi_{\mu_\mathcal{G}}(s_k)\qquad\text{a.s.}
+\]
+for each $k$; as $D$ is countable this holds simultaneously off a single null set, where Lemma
+\ref{Vwellposed}(ii) gives $c\le\inf_k\phi_{\mu_\mathcal{G}}(s_k)=V(X\mid\mathcal{G})$, and therefore $\Gamma(X;\mathcal{G},\mathcal{H})\ge0$ a.s.
+\end{proof}
+
+$V$ is an infimum of the affine functionals $\mu\mapsto\phi_\mu(s)$ and hence concave in $\mathcal{P}_2(S)$, while the two
+posteriors are related setwise by $\mu_\mathcal{G}(\cdot,A)=\E[\mu_\mathcal{H}(\cdot,A)\mid\mathcal{G}]$
+a.s.\ for each $A\in\I$. Lemma \ref{masterlemma} is therefore of the type DeGroot (1962) identified:
+uncertainty should decrease on average when information is refined. DeGroot's equivalence between
+that property and concavity was established for finite parameter spaces; on a general infinite
+measurable space concavity is necessary but not sufficient \citep{bect2026}. Lemma \ref{masterlemma}
+is accordingly proved directly.
+
+\begin{cor}[Fixed-target learning]
+\label{fixedlearning}
+Let $(\mathcal F_n)_{n\ge0}$ be a filtration of sub-$\sigma$-algebras of $\mathcal U$, and let $K$ be an $(\mathcal U,\mathcal I)$-measurable $S$-valued random element such that $\E[d^2(K,s_0)]<\infty$ for some $s_0\in S$. Suppose that a regular conditional distribution of $K$ given $\mathcal F_n$
+exists for every $n$. Then $\big(V(K|\mathcal{F}_n)\big)_{n\ge0}$ is a non-negative supermartingale with respect to $(\mathcal{F}_n)$, and
+\[
+\E\big[V(K\mid\F_{n+1})\mid\F_n\big]\;=\;V(K\mid\F_n)-\Gamma(K;\F_n,\F_{n+1})\;\leq\;V(K\mid\F_n)
+\quad\text{a.s.}
+\]
+\end{cor}
+
+\begin{proof}
+By Lemma \ref{Vwellposed}(iv), $V(K\mid\F_n)$ is $\F_n$-measurable and
+integrable for every $n$, and it is non-negative by definition. Hence
+$\big(V(K\mid\F_n)\big)_{n\ge0}$ is a non-negative adapted integrable
+process.
+
+For each $n$, since $\F_n\subseteq\F_{n+1}\subseteq\mathcal U$ and the
+corresponding regular conditional distributions exist, Lemma
+\ref{masterlemma} applies with $X=K$, $\mathcal G=\F_n$, and
+$\mathcal H=\F_{n+1}$. Therefore
+\[
+\E\big[V(K\mid\F_{n+1})\mid\F_n\big]
+=
+V(K\mid\F_n)-\Gamma(K;\F_n,\F_{n+1})
+\le V(K\mid\F_n)
+\]
+a.s., since $\Gamma(K;\F_n,\F_{n+1})\ge0$.
+\end{proof}
+Permutation invariant estimands are unchanging across all levels of a filtration. This includes limit estimands and shows that learning occurs in expectation for the limit estimand of sequential estimand. This guarantee holds even when barycentres fail to exist.
+
+Note that in Hadamard spaces, such as BHV space \citep{BHV2001} or $\tau$-space  \citep{tauspace2016}, this minimiser is unique \citep{Sturm2003ProbabilityMO}, but this result holds in spaces without enough structure to guarantee the existence or uniqueness of a minimiser.
+
+\begin{cor}[Value of a binary enlargement]
+\label{oraclegap}
+Let $X$ be an $(\U,\I)$-measurable $S$-valued random element with
+$\E[d^2(X,s_0)]<\infty$ for some $s_0\in S$, let $\G\subseteq\U$ be a
+sub-$\sigma$-algebra, let $A\in\U$, and set $\mathcal{H}:=\G\vee\sigma(A)$ and
+$p:=\Pr(A\mid\G)$, fixing a $[0,1]$-valued version of the latter. Suppose that
+regular conditional distributions $\mu_\G$ and $\mu_\mathcal{H}$ of $X$ given
+$\G$ and $\mathcal{H}$ exist, and that $\mu_\mathcal{H}$ admits a branch
+decomposition: there are probability kernels $\mu_A,\mu_{A^c}$ from
+$(\Omega,\G)$ to $(S,\I)$ with
+\begin{equation}\label{eq:branch}
+\mu_\mathcal{H}(\omega,\cdot)=\1_A(\omega)\,\mu_A(\omega,\cdot)
++\1_{A^c}(\omega)\,\mu_{A^c}(\omega,\cdot)\qquad\text{for a.e.\ }\omega.
+\end{equation}
+On $\{p=0\}$ the kernel $\mu_A$ is an unused version, and on $\{p=1\}$ the kernel
+$\mu_{A^c}$ is unused. Whenever an extended-real branch-risk display is used below, fix harmless
+finite-moment versions on those endpoint sets (for example a point mass at $s_0$); this does not
+alter either the coarse mixture law or the status-selected fine law.
+Then, a.s.:
+\begin{enumerate}
+\item[(i)] $\mu_\G=p\,\mu_A+(1-p)\,\mu_{A^c}$ as measures on $(S,\I)$, and
+consequently
+\[
+\phi_{\mu_\G}(s)=p\,\phi_{\mu_A}(s)+(1-p)\,\phi_{\mu_{A^c}}(s)
+\qquad\text{for every }s\in S,
+\]
+with all positive-weight branch quantities finite. In particular all three are finite on
+$\{0<p<1\}$. A zero-weight branch at $p=0$ or $p=1$ is not required to have a finite moment.
+\item[(ii)] $\E\big[V(X\mid\mathcal{H})\mid\G\big]
+=p\,V(\mu_A)+(1-p)\,V(\mu_{A^c})$.
+\item[(iii)] The value of the enlargement is the weighted infimum of the two
+branch excess risks,
+\begin{equation}\label{eq:gammaA}
+\Gamma(X;\G,\mathcal{H})
+=\inf_{s\in S}\Big[p\big(\phi_{\mu_A}(s)-V(\mu_A)\big)
++(1-p)\big(\phi_{\mu_{A^c}}(s)-V(\mu_{A^c})\big)\Big],
+\end{equation}
+both bracketed terms being non-negative for every $s$, and the infimum may be
+taken over any fixed countable dense $D\subset S$.
+\end{enumerate}
+\end{cor}
+ 
+The branch decomposition \eqref{eq:branch} is not an extra restriction in the
+intended application: because $\mathcal{H}=\G\vee\sigma(A)$, a version of
+$\mu_\mathcal{H}$ is obtained precisely by selecting between two
+$\G$-measurable kernels according to whether $A$ has occurred, and it is that
+version to which the statement refers. Note also that $V(\mu_A)$ and
+$V(\mu_{A^c})$ are $\G$-measurable, not merely $\mathcal{H}$-measurable, so
+that the right-hand side of \eqref{eq:gammaA} is $\G$-measurable, as
+$\Gamma(X;\G,\mathcal{H})$ must be by Lemma \ref{masterlemma}.
+ 
+\begin{proof}
+Throughout, $\phi_{\mu_A}(s)$ abbreviates $\phi_{\mu_A(\omega,\cdot)}(s)$ and
+similarly for the other kernels, and all statements are understood off a
+single null set.
+ 
+\emph{Finiteness.} By Lemma \ref{Vwellposed}(iv) applied to $\mathcal{H}$,
+$\phi_{\mu_\mathcal{H}}(s_0)$ is a version of $\E[d^2(X,s_0)\mid\mathcal{H}]$
+and is integrable, hence finite a.s. The coarse mixture identity below then implies that
+$\phi_{\mu_A}(s_0)$ is finite wherever $p>0$ and
+$\phi_{\mu_{A^c}}(s_0)$ is finite wherever $p<1$. Lemma \ref{Vwellposed}(i) upgrades finiteness at
+$s_0$ to every $s\in S$. At $p=0$ or $p=1$ the unused branch may be replaced by an arbitrary
+finite-moment probability measure without changing either conditional law; equivalently, the
+endpoint identity is read after multiplying that branch by its zero weight.
+ 
+\emph{(i).} Fix $B\in\I$. Since $\G\subseteq\mathcal{H}$, the defining property
+of a regular conditional distribution and the tower property give
+$\mu_\G(\cdot,B)=\E[\mu_\mathcal{H}(\cdot,B)\mid\G]$ a.s. Substituting
+\eqref{eq:branch} and pulling out the bounded $\G$-measurable factors
+$\mu_A(\cdot,B)$ and $\mu_{A^c}(\cdot,B)$,
+\[
+\E\big[\mu_\mathcal{H}(\cdot,B)\mid\G\big]
+=\E[\1_A\mid\G]\,\mu_A(\cdot,B)+\E[\1_{A^c}\mid\G]\,\mu_{A^c}(\cdot,B)
+=p\,\mu_A(\cdot,B)+(1-p)\,\mu_{A^c}(\cdot,B)
+\qquad\text{a.s.}
+\]
+As $\I$ is countably generated, fix a countable algebra generating it; the
+displayed identity holds simultaneously for every member of that algebra off a
+single null set, and off that set the two measures $\mu_\G$ and
+$p\mu_A+(1-p)\mu_{A^c}$ agree on a generating algebra and hence on $\I$. The
+identity for $\phi$ follows by integrating the non-negative
+$\I$-measurable function $d^2(\cdot,s)$ against both sides, and the three
+quantities are finite by the previous paragraph.
+ 
+\emph{(ii).} By \eqref{eq:branch}, $V(X\mid\mathcal{H})
+=\1_A V(\mu_A)+\1_{A^c}V(\mu_{A^c})$ a.s.; this is well defined up to a.s.\
+equality by Lemma \ref{Vwellposed}(iii). Both $V(\mu_A)$ and $V(\mu_{A^c})$ are
+$\G$-measurable by Lemma \ref{Vwellposed}(ii) applied kernelwise over a
+countable dense $D$, and both are integrable by Lemma \ref{Vwellposed}(iv), the
+bound $0\le V(\mu_A)\le\phi_{\mu_A}(s_0)$ furnishing an integrable envelope.
+Taking $\E[\,\cdot\mid\G]$ and pulling out the $\G$-measurable factors gives
+the claim.
+ 
+\emph{(iii).} Write $c:=p\,V(\mu_A)+(1-p)\,V(\mu_{A^c})$, a finite
+$\G$-measurable random variable. By the definition of $\Gamma$ and (ii),
+\[
+\Gamma(X;\G,\mathcal{H})=V(X\mid\G)-c=V(\mu_\G)-c\qquad\text{a.s.}
+\]
+For every $s\in S$, (i) gives
+\[
+\phi_{\mu_\G}(s)-c
+=p\big(\phi_{\mu_A}(s)-V(\mu_A)\big)+(1-p)\big(\phi_{\mu_{A^c}}(s)-V(\mu_{A^c})\big),
+\]
+and each bracketed term is non-negative by Lemma \ref{Vwellposed}(ii), so the
+right-hand side is non-negative for every $s$ because $p\in[0,1]$. In
+particular the family $\{\phi_{\mu_\G}(s)-c:s\in S\}$ is bounded below, so
+subtraction of the constant $c$ commutes with the infimum over $s$:
+\[
+\inf_{s\in S}\big[\phi_{\mu_\G}(s)-c\big]
+=\Big(\inf_{s\in S}\phi_{\mu_\G}(s)\Big)-c=V(\mu_\G)-c
+=\Gamma(X;\G,\mathcal{H}).
+\]
+Combining the two displays gives \eqref{eq:gammaA}. Finally, the function whose
+infimum is taken differs from $\phi_{\mu_\G}$ by the constant $c$, so Lemma
+\ref{Vwellposed}(ii) applies to it verbatim and the infimum may be restricted
+to a countable dense $D\subset S$.
+\end{proof}
+ 
+\begin{remark}
+Corollary \ref{oraclegap} is the exact counterpart of Lemma \ref{masterlemma}
+for the smallest non-trivial enlargement. Lemma \ref{masterlemma} asserts only
+that $\Gamma\ge0$; \eqref{eq:gammaA} says what $\Gamma$ \emph{is} when the
+enlargement resolves a single event, and it does so without assuming that
+either branch risk attains its infimum. The two branch excesses are separately
+non-negative and separately have infimum zero, so the entire content of the
+identity lies in whether the two infima can be approached along a
+\emph{common} sequence of centres; this is the observation exploited in
+Proposition \ref{oraclestrict}.
+\end{remark}
+
+
+\begin{theorem}[Exact one-step learning criterion]
+\label{maincriterion}
+Let $\F_n\subseteq\F_{n+1}\subseteq\mathcal{U}$ and let $K_n,K_{n+1}$ be
+$(\mathcal U,\mathcal I)$-measurable $S$-valued random elements with
+$\E[d^2(K_n,s_0)]<\infty$ and $\E[d^2(K_{n+1},t_0)]<\infty$ for some $s_0,t_0\in S$. Suppose that
+regular conditional distributions of $K_n$ given $\F_n$, of $K_n$ given $\F_{n+1}$, and of
+$K_{n+1}$ given $\F_{n+1}$ exist. Write $V_n:=V(K_n\mid\F_n)$, $U_{n+1}:=V(K_n\mid\F_{n+1})$ and
+$V_{n+1}:=V(K_{n+1}\mid\F_{n+1})$, and define
+\[
+J_n^{(d)}:=V_n-\E\big[U_{n+1}\mid\F_n\big],
+\qquad
+S_n^{(d)}:=\E\big[V_{n+1}-U_{n+1}\mid\F_n\big].
+\]
+Then $J_n^{(d)}$ and $S_n^{(d)}$ are $\F_n$-measurable and integrable,
+\[
+J_n^{(d)}=\Gamma(K_n;\F_n,\F_{n+1})\ge 0\quad\text{a.s.},
+\]
+and
+\[
+V_n-\E[V_{n+1}\mid\F_n]=J_n^{(d)}-S_n^{(d)}\quad\text{a.s.}
+\]
+Consequently $\E[V_{n+1}\mid\F_n]\le V_n$ a.s.\ if and only if $J_n^{(d)}\ge S_n^{(d)}$ a.s.
+\end{theorem}
+
+\begin{proof}
+Applying Lemma \ref{Vwellposed}(iv) to the three pairs $(K_n,\F_n)$, $(K_n,\F_{n+1})$ and
+$(K_{n+1},\F_{n+1})$ shows that $V_n$, $U_{n+1}$ and $V_{n+1}$ each lie in $L^1$ and are measurable
+with respect to the corresponding conditioning $\sigma$-algebra. Hence $\E[U_{n+1}\mid\F_n]$ and
+$\E[V_{n+1}\mid\F_n]$ are $\F_n$-measurable and integrable, and so are $J_n^{(d)}$ and $S_n^{(d)}$.
+
+Since $\F_n\subseteq\F_{n+1}\subseteq\mathcal{U}$ and the required regular conditional distributions
+of $K_n$ exist, Lemma \ref{masterlemma} applies with $X=K_n$, $\mathcal{G}=\F_n$ and
+$\mathcal{H}=\F_{n+1}$, giving $J_n^{(d)}=\Gamma(K_n;\F_n,\F_{n+1})\ge 0$ a.s.
+
+As $V_{n+1}$ and $U_{n+1}$ are both integrable, linearity of conditional expectation splits
+$S_n^{(d)}$, and
+\[
+J_n^{(d)}-S_n^{(d)}
+=V_n-\E\big[U_{n+1}\mid\F_n\big]-\E[V_{n+1}\mid\F_n]+\E\big[U_{n+1}\mid\F_n\big]
+=V_n-\E[V_{n+1}\mid\F_n]
+\]
+a.s. The stated equivalence follows by rearrangement.
+\end{proof}
+
+\subsection{Hilbert interpretation}
+
+Throughout this section $S=\mathbb{H}$ is a separable real Hilbert space with $d(x,y)=\|x-y\|$ and
+$\I=\B(\mathbb{H})$, and $K_n,K_{n+1},K_\infty$ are square-integrable. The infimum defining
+$V(X\mid\mathcal{A})$ is then attained at the conditional mean, so
+\[
+V(X\mid\mathcal{A})=\E\big[\|X-\E[X\mid\mathcal{A}]\|^2\;\big|\;\mathcal{A}\big].
+\]
+Two quantities carry the whole section:
+\[
+a_{n+1}:=\E[K_n\mid\F_{n+1}]-\E[K_n\mid\F_n],
+\qquad
+w_{n+1}:=\big(K_{n+1}-K_n\big)-\E\big[K_{n+1}-K_n\mid\F_{n+1}\big].
+\]
+The first is what the new observation revealed about the \emph{old} target; the second is the part
+of the target's movement that the new observation failed to explain. We also write
+$R_{n\mid n+1}:=K_n-\E[K_n\mid\F_{n+1}]$ for the posterior residual of $K_n$ after the new
+observation, so that $U_{n+1}=V(K_n\mid\F_{n+1})=\E[\|R_{n\mid n+1}\|^2\mid\F_{n+1}]$.
+
+\begin{lemma}[Residual after the increment]
+\label{increment}
+$\E[a_{n+1}\mid\F_n]=0$, $\E[w_{n+1}\mid\F_{n+1}]=0$, $\E[R_{n\mid n+1}\mid\F_{n+1}]=0$, and
+\[
+K_{n+1}-\E[K_{n+1}\mid\F_{n+1}]\;=\;R_{n\mid n+1}+w_{n+1}.
+\]
+\end{lemma}
+
+\begin{proof}
+The three centrings are the tower property. For the identity, subtract
+$\E[K_{n+1}\mid\F_{n+1}]=\E[K_n\mid\F_{n+1}]+\E[K_{n+1}-K_n\mid\F_{n+1}]$ from
+$K_{n+1}=K_n+(K_{n+1}-K_n)$ and group the two differences.
+\end{proof}
+
+Writing $K_{n+1}-K_n$ as its $\F_n$-predictable part, the news about its size contained in
+$\F_{n+1}$, and the residue $w_{n+1}$, the posterior mean moves for three separable reasons:
+\begin{gather*}
+\E[K_{n+1}\mid\F_{n+1}]-\E[K_n\mid\F_n]
+\\=\underbrace{\E[K_{n+1}-K_n\mid\F_n]}_{\text{anticipated movement}}
++\underbrace{a_{n+1}}_{\text{news about the old target}}
++\underbrace{\E[K_{n+1}-K_n\mid\F_{n+1}]-\E[K_{n+1}-K_n\mid\F_n]}_{\text{news about the movement}} .
+\end{gather*}
+All three terms are $\F_{n+1}$-measurable and therefore contribute to the new posterior mean rather than to the stage-$(n+1)$ residual. The distinction is that the first and third terms are resolved components of estimand movement and cancel from the posterior residual, whereas $a_{n+1}$ measures the information gained about the old target and hence determines $J_n^{(d)}$. The unresolved movement $w_{n+1}$, which does not appear in the posterior-mean decomposition, is what can increase posterior dispersion.
+
+\begin{theorem}[Hilbert form of the learning criterion]
+\label{hilbcriterion}
+\[
+J_n^{(d)}=\E\big[\|a_{n+1}\|^2\mid\F_n\big],
+\qquad
+S_n^{(d)}=\E\big[\|w_{n+1}\|^2+2\langle R_{n\mid n+1},w_{n+1}\rangle\mid\F_n\big],
+\]
+and consequently $\E[V_{n+1}\mid\F_n]\le V_n$ a.s.\ if and only if
+\[
+\E\big[\|a_{n+1}\|^2\mid\F_n\big]\;\ge\;
+\E\big[\|w_{n+1}\|^2+2\langle R_{n\mid n+1},w_{n+1}\rangle\mid\F_n\big]\quad\text{a.s.}
+\]
+\end{theorem}
+
+\begin{proof}
+By the law of total variance applied to $K_n$ under $\F_n\subseteq\F_{n+1}$,
+\[
+V_n=\E\big[U_{n+1}\mid\F_n\big]+\Var\big(\E[K_n\mid\F_{n+1}]\;\big|\;\F_n\big),
+\]
+and the second term is $\E[\|a_{n+1}\|^2\mid\F_n]$ since $\E[K_n\mid\F_{n+1}]=\E[K_n\mid\F_n]+a_{n+1}$
+with $\E[a_{n+1}\mid\F_n]=0$. Comparing with $J_n^{(d)}=V_n-\E[U_{n+1}\mid\F_n]$ gives the first
+identity.
+
+By Lemma \ref{increment} and expansion of the squared norm,
+\[
+V_{n+1}=\E\big[\|R_{n\mid n+1}+w_{n+1}\|^2\mid\F_{n+1}\big]
+=U_{n+1}+\E\big[\|w_{n+1}\|^2+2\langle R_{n\mid n+1},w_{n+1}\rangle\mid\F_{n+1}\big].
+\]
+Taking $\E[\,\cdot\mid\F_n]$ and using $S_n^{(d)}=\E[V_{n+1}-U_{n+1}\mid\F_n]$ with the tower
+property gives the second. The equivalence is Theorem \ref{maincriterion}.
+\end{proof}
+
+\begin{cor}[Resolved increments]
+\label{resolved}
+If $K_{n+1}-K_n$ is $\F_{n+1}$-measurable then $w_{n+1}=0$, hence $S_n^{(d)}=0$ and
+\[
+\E[V_{n+1}\mid\F_n]=V_n-J_n^{(d)}\le V_n\qquad\text{a.s.}
+\]
+\end{cor}
+
+\begin{proof}
+Immediate from Theorem \ref{hilbcriterion}, both terms of $S_n^{(d)}$ vanishing.
+\end{proof}
+
+\begin{prop}[Reducible and irreducible uncertainty about the limit estimand]
+\label{reducible}
+Let $\F_\infty:=\sigma\big(\bigcup_n\F_n\big)$ and suppose a regular conditional distribution of
+$K_\infty$ given $\F_\infty$ exists. Then for every $n$,
+\[
+\Var(K_\infty\mid\F_n)
+=\underbrace{\Gamma(K_\infty;\F_n,\F_\infty)}_{\text{reducible}}
++\underbrace{\E\big[\Var(K_\infty\mid\F_\infty)\mid\F_n\big]}_{\text{irreducible}}
+\qquad\text{a.s.},
+\]
+and
+\[
+\Gamma(K_\infty;\F_n,\F_\infty)
+=\sum_{m\ge n}\E\Big[\big\|\E[K_\infty\mid\F_{m+1}]-\E[K_\infty\mid\F_m]\big\|^2\;\Big|\;\F_n\Big]
+\qquad\text{a.s.}
+\]
+The irreducible term vanishes a.s.\ if and only if $K_\infty$ is $\F_\infty$-measurable up to a null
+set.
+\end{prop}
+
+\begin{proof}
+The first display is Lemma \ref{masterlemma} with $X=K_\infty$, $\G=\F_n$, $\mathcal{H}=\F_\infty$,
+rearranged; $\F_n\subseteq\F_\infty$ by construction.
+
+For the second, the law of total variance applied to $K_\infty$ under $\F_m\subseteq\F_{m+1}$ gives
+$\Gamma(K_\infty;\F_m,\F_{m+1})
+=\E\big[\|\E[K_\infty\mid\F_{m+1}]-\E[K_\infty\mid\F_m]\|^2\mid\F_m\big]$, so by the tower property
+and telescoping, for every $N>n$,
+\begin{equation}\label{eq:partialsum}
+\Sigma_N:=\sum_{m=n}^{N-1}\E\Big[\big\|\E[K_\infty\mid\F_{m+1}]-\E[K_\infty\mid\F_m]\big\|^2\;\Big|\;\F_n\Big]
+=\Var(K_\infty\mid\F_n)-\E\big[\Var(K_\infty\mid\F_N)\mid\F_n\big].
+\end{equation}
+
+We claim $\Var(K_\infty\mid\F_N)\to\Var(K_\infty\mid\F_\infty)$ in $L^1$. Writing
+$\Var(K_\infty\mid\F_N)=\E[\|K_\infty\|^2\mid\F_N]-\|\E[K_\infty\mid\F_N]\|^2$, the first term
+converges to $\E[\|K_\infty\|^2\mid\F_\infty]$ in $L^1$ by L\'evy's upward theorem, since
+$\|K_\infty\|^2\in L^1$. For the second, L\'evy's upward theorem in $L^2$ gives
+$\E[K_\infty\mid\F_N]\to\E[K_\infty\mid\F_\infty]$ in $L^2$; writing $X_N:=\E[K_\infty\mid\F_N]$ and
+$X_\infty:=\E[K_\infty\mid\F_\infty]$,
+\[
+\E\big|\,\|X_N\|^2-\|X_\infty\|^2\big|
+=\E\big[\big|\|X_N\|-\|X_\infty\|\big|\big(\|X_N\|+\|X_\infty\|\big)\big]
+\le\|X_N-X_\infty\|_{L^2}\big(\|X_N\|_{L^2}+\|X_\infty\|_{L^2}\big)\longrightarrow0,
+\]
+by the reverse triangle inequality and Cauchy--Schwarz, the bracketed factor being bounded since
+$\|X_N\|_{L^2}\le\|K_\infty\|_{L^2}$ for every $N$. Subtracting gives the claim, and applying
+$\E[\,\cdot\mid\F_n]$, which is an $L^1$-contraction, gives
+$\E[\Var(K_\infty\mid\F_N)\mid\F_n]\to\E[\Var(K_\infty\mid\F_\infty)\mid\F_n]$ in $L^1$.
+
+By \eqref{eq:partialsum}, $\Sigma_N\to\Gamma(K_\infty;\F_n,\F_\infty)$ in $L^1$. The summands are
+non-negative, so $\Sigma_N$ is non-decreasing and converges a.s.\ to some
+$\Sigma_\infty\in[0,\infty]$. An $L^1$-convergent sequence has an a.s.\ convergent subsequence with
+the same limit, so $\Sigma_\infty=\Gamma(K_\infty;\F_n,\F_\infty)$ a.s., which is the stated
+identity.
+
+Finally, $\E[\Var(K_\infty\mid\F_\infty)\mid\F_n]=0$ a.s.\ if and only if
+$\Var(K_\infty\mid\F_\infty)=0$ a.s., the latter being non-negative; and this holds if and only if
+$K_\infty=\E[K_\infty\mid\F_\infty]$ a.s., that is, $K_\infty$ is $\F_\infty$-measurable up to a
+null set.
+\end{proof}
+
+\begin{prop}[Current target and remaining change]
+\label{currentremaining}
+Write $H_n:=K_\infty-K_n$ and
+$\Cov(X,Y\mid\F_n):=\E\big[\langle X-\E[X\mid\F_n],\,Y-\E[Y\mid\F_n]\rangle\mid\F_n\big]$. Then
+\[
+\Var(K_\infty\mid\F_n)=\Var(K_n\mid\F_n)+\Var(H_n\mid\F_n)+2\Cov(K_n,H_n\mid\F_n)
+\qquad\text{a.s.},
+\]
+and $\Var(K_\infty\mid\F_n)<\Var(K_n\mid\F_n)$ if and only if
+$2\Cov(K_n,H_n\mid\F_n)<-\Var(H_n\mid\F_n)$.
+\end{prop}
+
+\begin{proof}
+Expand the squared norm in
+$K_\infty-\E[K_\infty\mid\F_n]=\big(K_n-\E[K_n\mid\F_n]\big)+\big(H_n-\E[H_n\mid\F_n]\big)$ and take
+$\E[\,\cdot\mid\F_n]$. The equivalence follows on subtracting $\Var(K_n\mid\F_n)$.
+\end{proof}
+
+\subsection{Geometric control}
+
+\begin{lemma}[Lipschitz stability of Fr\'echet risk and variance]
+\label{psilip}
+\begin{enumerate}
+\item[(i)] For all probability measures $\mu,\nu$ on $(S,\I)$ and all $s,s'\in S$,
+\begin{equation}\label{eq:psilip}
+\Psi(\mu,s)\;\le\;\Psi(\nu,s')+W_{2,d}(\mu,\nu)+d(s,s')
+\end{equation}
+in $[0,\infty]$.
+\item[(ii)] If $\mu\in\mathcal{P}_2(S)$ then $\Psi(\mu,\cdot)$ is real-valued and
+\[
+\big|\Psi(\mu,s)-\Psi(\mu,s')\big|\;\le\;d(s,s')\qquad\text{for all }s,s'\in S,
+\]
+so $\Psi(\mu,\cdot)$ is $1$-Lipschitz and constant on $d$-equivalence classes.
+\item[(iii)] If $\mu,\nu\in\mathcal{P}_2(S)$ then
+\[
+\big|V(\mu)^{1/2}-V(\nu)^{1/2}\big|\;\le\;W_{2,d}(\mu,\nu).
+\]
+\end{enumerate}
+\end{lemma}
+
+\begin{proof}
+See Appendix.
+\end{proof}
+
+\begin{lemma}[The posterior displacement is well defined]
+\label{displacement}
+Let $(\bar S,\bar d)$ denote the metric quotient of $(S,d)$ with quotient map $q$, let
+$(\hat S,\hat d)$ denote its completion, write $\iota$ for the canonical isometric embedding of
+$\bar S$ into $\hat S$, and set $\jmath:=\iota\circ q:S\to\hat S$. For a probability measure $\mu$
+on $(S,\I)$ put $\hat\mu:=\jmath_{\#}\mu$, a Borel probability measure on the Polish space $\hat S$.
+Then:
+\begin{enumerate}
+\item[(i)] $\phi_{\hat\mu}(\jmath(s))=\phi_\mu(s)$ for every $s\in S$, and $V(\hat\mu)=V(\mu)$,
+where $V(\hat\mu):=\inf_{t\in\hat S}\phi_{\hat\mu}(t)$.
+\item[(ii)] If $\mu^X_\mathcal{A}$ is a regular conditional distribution of an
+$(\mathcal U,\I)$-measurable $X$ given $\mathcal{A}$, then
+$\widehat{\mu^X_\mathcal{A}}$ is a regular conditional distribution of $\jmath(X)$ given
+$\mathcal{A}$, and $\omega\mapsto\widehat{\mu^X_\mathcal{A}}(\omega)$ is measurable from
+$(\Omega,\mathcal{A})$ into $\mathcal{P}(\hat S)$ with its Borel $\sigma$-algebra for the weak
+topology. Any two such kernels agree outside a single $\mathcal{A}$-null set.
+\item[(iii)] Let $X,Y$ be $(\mathcal U,\I)$-measurable $S$-valued random elements and suppose a
+regular conditional distribution $\rho$ of the pair $(X,Y)$ given $\mathcal{A}$ exists. Then
+\[
+\Delta:=W_{2,\hat d}\big(\widehat{\mu^X_\mathcal{A}},\widehat{\mu^Y_\mathcal{A}}\big)
+\]
+is $\mathcal{A}$-measurable, independent of the choice of regular conditional distributions up to a
+null set, and satisfies
+\[
+\Delta^2\;\le\;\E\big[d^2(X,Y)\mid\mathcal{A}\big]\quad\text{a.s.},
+\qquad
+\E[\Delta^2]\;\le\;\E\big[d^2(X,Y)\big].
+\]
+In particular $\Delta<\infty$ a.s.\ and $\Delta\in L^2$ whenever $\E[d^2(X,Y)]<\infty$.
+\end{enumerate}
+\end{lemma}
+
+\begin{proof}
+See Appendix.
+\end{proof}
+
+\begin{prop}[Posterior displacement bound]
+\label{dispbound}
+Let $K_n,K_{n+1}$ satisfy the hypotheses of Theorem \ref{maincriterion}, suppose a regular
+conditional distribution of the pair $(K_n,K_{n+1})$ given $\F_{n+1}$ exists, and let
+$\Delta_{n+1}$ be the posterior displacement of Lemma \ref{displacement}(iii) with
+$X=K_n$, $Y=K_{n+1}$, $\mathcal{A}=\F_{n+1}$. Then, a.s.,
+\[
+\big|V_{n+1}^{1/2}-U_{n+1}^{1/2}\big|\;\le\;\Delta_{n+1},
+\qquad
+V_{n+1}-U_{n+1}\;\le\;\Delta_{n+1}\big(\Delta_{n+1}+2U_{n+1}^{1/2}\big),
+\]
+and consequently
+\[
+S_n^{(d)}\;\le\;\E\big[\Delta_{n+1}^2+2\Delta_{n+1}U_{n+1}^{1/2}\;\big|\;\F_n\big].
+\]
+\end{prop}
+
+\begin{proof}
+Both $\mu^{K_n}_{\F_{n+1}}(\omega)$ and $\mu^{K_{n+1}}_{\F_{n+1}}(\omega)$ lie in
+$\mathcal{P}_2(S)$ for a.e.\ $\omega$, by Lemma \ref{Vwellposed}(iv), so Lemma \ref{psilip}(iii),
+applied in $\hat S$ and transported by Lemma \ref{displacement}(i), gives the first display. Squaring
+$V_{n+1}^{1/2}\le U_{n+1}^{1/2}+\Delta_{n+1}$ gives the second. Both sides of the second display are
+$\F_{n+1}$-measurable, the right side is non-negative, and $V_{n+1}-U_{n+1}$ is integrable by Lemma
+\ref{Vwellposed}(iv); taking $\E[\,\cdot\mid\F_n]$ and recalling
+$S_n^{(d)}=\E[V_{n+1}-U_{n+1}\mid\F_n]$ gives the third.
+\end{proof}
+
+\begin{prop}[Sharpness of the displacement bound]
+\label{dispsharp}
+\begin{enumerate}
+\item[(i)] For every separable pseudometric space $(S,\I,d)$, all $\mu,\nu\in\mathcal{P}_2(S)$ and
+all $u,\delta\ge0$ with $V(\mu)^{1/2}=u$ and $W_{2,d}(\mu,\nu)\le\delta$,
+\[
+V(\nu)-V(\mu)\;\le\;\delta(\delta+2u).
+\]
+\item[(ii)] For every $u,\delta\ge0$ there exist $\mu,\nu\in\mathcal{P}_2(\mathbb{R})$, with
+$\mathbb{R}$ carrying the Euclidean metric, such that $V(\mu)^{1/2}=u$,
+$W_{2}(\mu,\nu)=\delta$ and $V(\nu)-V(\mu)=\delta(\delta+2u)$.
+\end{enumerate}
+Consequently no function of $V(\mu)$ and $W_{2,d}(\mu,\nu)$ alone bounds $V(\nu)-V(\mu)$ more
+tightly than (i), and Proposition \ref{dispbound} is best possible in these two quantities.
+\end{prop}
+
+\begin{proof}
+(i) By Lemma \ref{psilip}(iii), $V(\nu)^{1/2}\le V(\mu)^{1/2}+W_{2,d}(\mu,\nu)\le u+\delta$;
+squaring and subtracting $V(\mu)=u^2$ gives the claim.
+
+(ii) Take
+\[
+\mu:=\tfrac12\big(\delta_{-u}+\delta_{u}\big),\qquad
+\nu:=\tfrac12\big(\delta_{-(u+\delta)}+\delta_{u+\delta}\big).
+\]
+Both are symmetric about $0$, so $V(\mu)=u^2$ and $V(\nu)=(u+\delta)^2$, whence
+$V(\mu)^{1/2}=u$ and $V(\nu)-V(\mu)=\delta(\delta+2u)$. The coupling matching $-u$ to
+$-(u+\delta)$ and $u$ to $u+\delta$ has cost $\big(\tfrac12\delta^2+\tfrac12\delta^2\big)^{1/2}
+=\delta$, so $W_2(\mu,\nu)\le\delta$; and $W_2(\mu,\nu)\ge V(\nu)^{1/2}-V(\mu)^{1/2}=\delta$ by
+Lemma \ref{psilip}(iii), so $W_2(\mu,\nu)=\delta$.
+\end{proof}
+
+\begin{prop}[Predictable displacement envelope]
+\label{dispenvelope}
+Under the hypotheses of Proposition \ref{dispbound}, set
+\[
+\bar\Delta_{n+1}:=\big(\E[\Delta_{n+1}^2\mid\F_n]\big)^{1/2},
+\]
+which is $\F_n$-measurable and a.s.\ finite. Then, writing
+$A_n:=\E[U_{n+1}\mid\F_n]=V_n-J_n^{(d)}$,
+\[
+\E[V_{n+1}\mid\F_n]\;\le\;\Big(A_n^{1/2}+\bar\Delta_{n+1}\Big)^{2}
+\;=\;\Big(\big(V_n-J_n^{(d)}\big)^{1/2}+\bar\Delta_{n+1}\Big)^{2}
+\qquad\text{a.s.}
+\]
+\end{prop}
+
+\begin{proof}
+Theorem \ref{maincriterion} supplies $s_0,t_0\in S$ with $\E[d^2(K_n,s_0)]<\infty$ and
+$\E[d^2(K_{n+1},t_0)]<\infty$; by the basepoint-independence in Lemma \ref{Vwellposed}(i) the
+latter gives $\E[d^2(K_{n+1},s_0)]<\infty$ as well. Hence
+$d^2(K_n,K_{n+1})\le2d^2(K_n,s_0)+2d^2(K_{n+1},s_0)$ is integrable, and Lemma
+\ref{displacement}(iii) gives $\E[\Delta_{n+1}^2]\le\E[d^2(K_n,K_{n+1})]<\infty$. Thus
+$\Delta_{n+1}\in L^2$ and $\bar\Delta_{n+1}$ is a.s.\ finite; it is $\F_n$-measurable as a
+conditional expectation of an $\F_{n+1}$-measurable random variable.
+
+By Proposition \ref{dispbound}, $V_{n+1}\le U_{n+1}+2\Delta_{n+1}U_{n+1}^{1/2}+\Delta_{n+1}^2$ a.s.
+All three terms on the right are non-negative, so taking $\E[\,\cdot\mid\F_n]$ preserves the
+inequality, and by the conditional Cauchy--Schwarz inequality applied to the cross term,
+\[
+\E\big[\Delta_{n+1}U_{n+1}^{1/2}\mid\F_n\big]
+\;\le\;\big(\E[\Delta_{n+1}^2\mid\F_n]\big)^{1/2}\big(\E[U_{n+1}\mid\F_n]\big)^{1/2}
+=\bar\Delta_{n+1}A_n^{1/2}.
+\]
+Hence $\E[V_{n+1}\mid\F_n]\le A_n+2\bar\Delta_{n+1}A_n^{1/2}+\bar\Delta_{n+1}^2$, which is the
+stated bound. The identity $A_n=V_n-J_n^{(d)}$ is the definition of $J_n^{(d)}$ in Theorem
+\ref{maincriterion}.
+\end{proof}
+
+\begin{cor}[Break-even criterion]
+\label{breakeven}
+Under the hypotheses of Proposition \ref{dispenvelope},
+\[
+\bar\Delta_{n+1}\;\le\;V_n^{1/2}-\big(V_n-J_n^{(d)}\big)^{1/2}
+\qquad\Longrightarrow\qquad
+\E[V_{n+1}\mid\F_n]\;\le\;V_n\quad\text{a.s.}
+\]
+Both sides of the hypothesis are $\F_n$-measurable, and the right-hand side is non-negative since
+$0\le J_n^{(d)}\le V_n$.
+\end{cor}
+
+\begin{proof}
+The hypothesis rearranges to $A_n^{1/2}+\bar\Delta_{n+1}\le V_n^{1/2}$; squaring and applying
+Proposition \ref{dispenvelope} gives the conclusion. Non-negativity of the right-hand side follows
+from $J_n^{(d)}=\Gamma(K_n;\F_n,\F_{n+1})\ge0$ and $A_n=\E[U_{n+1}\mid\F_n]\ge0$.
+\end{proof}
+
+\section{Impossibility}
+
+\subsection*{The rotation family}
+
+\begin{construction}[Rotation family]
+\label{rotation}
+Fix $z\in\mathbb{N}$. Let $Z_0,W_0$ be independent Rademacher random variables and let $e_Z,e_W$
+be orthonormal in a separable real Hilbert space $\mathbb{H}$. Write $Z:=Z_0e_Z$ and $W:=W_0e_W$.
+Let $(\alpha_n)_{n\le z}$ be a deterministic sequence in $[0,\tfrac{\pi}{2}]$ with
+$\alpha_z=0$, and set
+\[
+K_n:=\cos\alpha_n\,Z+\sin\alpha_n\,W,\qquad K_\infty:=Z .
+\]
+For any filtration $(\F_n)$ write $v_n:=\Var(W_0\mid\F_n)$ and
+$\gamma_n:=\cos^2\!\alpha_n$.
+\end{construction}
+
+\begin{lemma}[Properties of the rotation family]
+\label{rotprops}
+For Construction \ref{rotation}:
+\begin{enumerate}
+\item[(i)] $\|K_n\|=1$ pathwise, and $\|K_n-K_\infty\|=2\sin(\alpha_n/2)=:r_n$. The map
+$\alpha\mapsto2\sin(\alpha/2)$ is a strictly increasing bijection from $[0,\tfrac{\pi}{2}]$ onto
+$[0,\sqrt2]$, so every deterministic $[0,\sqrt2]$-valued sequence $(r_n)_{n\le z}$ with $r_z=0$ is
+realised by exactly one admissible $(\alpha_n)$; and $\gamma_n$ is strictly decreasing in $r_n$.
+\item[(ii)] If $Z_0$ is independent of $\F_\infty$ then $V_n=\gamma_n+(1-\gamma_n)v_n$.
+\item[(iii)] With $\bar v_{n+1}:=\E[v_{n+1}\mid\F_n]$,
+\[
+\E[V_{n+1}\mid\F_n]-V_n=(\gamma_{n+1}-\gamma_n)\big(1-\bar v_{n+1}\big)
++(1-\gamma_n)\big(\bar v_{n+1}-v_n\big),
+\qquad
+J^{(d)}_n=(1-\gamma_n)\big(v_n-\bar v_{n+1}\big).
+\]
+\end{enumerate}
+The condition $\alpha_z=0$ is exactly the requirement $K_z=K_\infty$ in the definition of a limit
+estimand. Since $(\alpha_n)$ is deterministic, the discrepancy path is the same for every latent
+state and every revelation order, and no conditional covariance term arises in (iii).
+\end{lemma}
+
+\begin{proof}
+(i) $\|K_n\|^2=\cos^2\!\alpha_n+\sin^2\!\alpha_n=1$, and
+$\|K_n-K_\infty\|^2=(\cos\alpha_n-1)^2+\sin^2\!\alpha_n=2-2\cos\alpha_n=4\sin^2(\alpha_n/2)$; the
+remaining claims are properties of $\alpha\mapsto2\sin(\alpha/2)$ on $[0,\tfrac{\pi}{2}]$.
+
+(ii) $Z_0\perp\F_n$ gives $\Var(Z_0\mid\F_n)=1$, and $e_Z\perp e_W$ makes the cross term vanish.
+
+(iii) Substitute (ii) at $n$ and $n+1$, take $\E[\,\cdot\mid\F_n]$ using that $\gamma_{n+1}$ is
+deterministic, and rearrange. For $J^{(d)}_n$, the target $K_n$ held fixed under $\F_{n+1}$ has
+$V(K_n\mid\F_{n+1})=\gamma_n+(1-\gamma_n)v_{n+1}$, so
+$J^{(d)}_n=V_n-\E[V(K_n\mid\F_{n+1})\mid\F_n]=(1-\gamma_n)(v_n-\bar v_{n+1})$.
+\end{proof}
+
+\subsection*{The flag space}
+
+\begin{lemma}[Flag space]
+\label{flagspace}
+Let $S:=\mathbb{H}\times\{0,1\}$ with $d\big((x,i),(y,j)\big):=\|x-y\|$ and
+$\I:=\B(\mathbb{H})\otimes2^{\{0,1\}}$. Then $(S,d)$ is a separable pseudometric space, $\I$ is
+countably generated and countably separating with $\B_d(S)\subseteq\I$; for every probability
+measure $\mu$ on $(S,\I)$ the quantities $\phi_\mu$ and $V(\mu)$ depend on $\mu$ only through its
+$\mathbb{H}$-marginal. Projection gives
+\[
+W_{2}(\mu_{\mathbb H},\nu_{\mathbb H})\le W_{2,d}(\mu,\nu).
+\]
+In fact equality always holds:
+\[
+W_{2,d}(\mu,\nu)=W_{2}(\mu_{\mathbb H},\nu_{\mathbb H}).
+\]
+Consequently, flag lifting leaves $V_n$, $J^{(d)}_n$, $S^{(d)}_n$, and
+$\Delta_{n+1}$ unchanged.
+\end{lemma}
+
+\begin{proof}
+Identify the flagged space measurably with $\mathbb H\times\{0,1\}$.
+Because the flag coordinate is finite, each flagged law admits a Markov kernel
+for the conditional flag distribution given its $\mathbb H$-coordinate. Given
+any coupling $\pi$ of $\mu_{\mathbb H}$ and $\nu_{\mathbb H}$, decorate its two
+coordinates independently using these two conditional flag kernels. The
+resulting law has marginals exactly $\mu$ and $\nu$, and projecting it back to
+$\mathbb H\times\mathbb H$ recovers $\pi$ exactly. Its transport cost is
+therefore the cost of $\pi$, since $d$ ignores both flags. Taking infima gives
+the reverse inequality and hence equality. The assertions for Fr\'echet risk,
+variance, information, movement, and posterior displacement follow by
+projection.
+\end{proof}
+
+\begin{definition}[Admissible flag process]
+\label{flagadmissible}
+A flag process $\varphi_n(\xi)$ is \emph{admissible} if
+$(Y_{\xi(1)},\dots,Y_{\xi(n)})(\omega)=(Y_{\xi'(1)},\dots,Y_{\xi'(n)})(\omega)$ implies
+$\varphi_n(\xi)(\omega)=\varphi_n(\xi')(\omega)$, and if
+$\varphi_z(\xi)(\omega)=\varphi_\infty(\omega)$ for every $\xi$, where $\varphi_\infty$ is the
+designated limit flag. The first condition is the non-anticipation requirement imposed on
+structural constraints in Section~\ref{sec:classes}; the second ensures
+$\widetilde K_z(\xi)=K_\infty$ literally. The concrete witness flags below are measurable at every
+stage.
+\end{definition}
+
+\subsection*{A finite noisy observation experiment}
+
+\begin{construction}[Finite observation maps]
+\label{obsmaps}
+Let the latent space consist of a hidden sign $W\in\{-1,1\}$, a four-valued first error selector,
+a sixteen-valued second error selector, and a spare Boolean branch variable, all uniformly and
+independently distributed. Thus the latent space has $2\cdot4\cdot16\cdot2=256$ equiprobable
+states. The first observed sign flips $W$ for one of the four first-selector values, and the second
+flips $W$ for seven of the sixteen second-selector values. Their crossover probabilities are
+$q=1/4$ and $q'=7/16$.
+
+The three observation maps reveal no sign, the first sign, and both signs, respectively. Their
+generated $\sigma$-algebras form a three-stage filtration. For the scalar hidden sign the prior
+variance is $1$, the posterior variance after one sign is $3/4$, and after two signs it is
+$189/289$ when the signs agree and $21/25$ when they disagree. The expected posterior variance
+after two signs is $63/85$.
+\end{construction}
+
+\subsection*{The same estimand under both observation models}
+
+For each non-fixed structural class, lift a two-dimensional rotation path to
+$S=\mathbb H\times\{0,1\}$.  Write $Z\in\{-1,1\}$ for the signed version of the spare branch bit
+and let $e_Z,e_W$ be orthonormal.  The common stage-one and stage-two values are
+\[
+X_1=Z e_Z\cos(\pi/2)+W e_W\sin(\pi/2),\qquad
+X_2=Z e_Z\cos(\pi/4)+W e_W\sin(\pi/4).
+\]
+The initial value distinguishes the monotone and nonmonotone rows, while the later Boolean flags
+realise the absorbing, mixed, nonabsorbing, and terminal subclasses.  These choices change neither
+the displayed stage functions nor their Fr\'echet variance, because the flag pseudometric projects
+exactly to the Hilbert coordinate.
+
+\begin{prop}[Both verdicts for one flag-lifted estimand]
+\label{bothverdicts}
+Fix any non-fixed structural class and its flag-lifted rotation estimand just described.  Under
+Model A, whose filtration reveals no sign at any stage, its canonical posterior laws satisfy
+\[
+V_n=1\quad\hbox{for every }n,
+\qquad
+\E[V_{n+1}\mid\F_n]-V_n=0.
+\]
+Under Model B, take the one-sign generated $\sigma$-algebra at stage one and the two-sign generated
+$\sigma$-algebra at stage two.  For the very same estimand function,
+\[
+V_1=\frac34,qquad
+\E[V_2\mid\F_1]=\frac{74}{85},qquad
+\E[V_2\mid\F_1]-V_1=\frac{41}{340}>0.
+\]
+Moreover the actual Fr\'echet information and estimand-movement terms are
+\[
+J^{(d)}_1=\frac{3}{340},qquad
+S^{(d)}_1=\frac{44}{340},qquad
+0<J^{(d)}_1<S^{(d)}_1.
+\]
+All displayed statements use the canonical regular conditional law of the flag-valued stage
+variable under the stated generated $\sigma$-algebra.
+\end{prop}
+
+\begin{proof}
+The conditional law is the map of the finite-state conditional-expectation kernel by the relevant
+flag-valued stage function.  It is a regular conditional law, and projection to the Hilbert
+coordinate preserves Fr\'echet variance.  The branch bit is not observed by either sign map, so its
+signed coordinate remains conditionally centred; no additional latent bit is required.  Exact
+finite-fibre calculations give $V_1=3/4$, the expected old-target stage-two variance $63/85$, and
+the expected new-target stage-two variance $74/85$.  Hence
+\[
+J^{(d)}_1=\frac34-\frac{63}{85}=\frac{3}{340},\qquad
+S^{(d)}_1=\frac{74}{85}-\frac{63}{85}=\frac{44}{340},
+\]
+and their difference is $41/340$.  With the no-sign $\sigma$-algebra, every rotation row has
+Fr\'echet variance one, including its terminal value.
+\end{proof}
+
+\subsection*{The finite same-estimand theorem}
+
+\begin{theorem}[Class membership does not determine learning outside the fixed class]
+\label{impossibility}
+On the same 256-state probability space, every non-fixed structural class admits a single
+hypothetical sequential estimand with measurable class events such that Model A satisfies the
+learning inequality with equality at every stage, whereas Model B has the strict conditional
+expected increase $41/340$ at the stage-one to stage-two transition.  The estimand function is
+identical in the two models; only the observation filtration, and hence its canonical posterior
+law, changes.
+\end{theorem}
+
+\begin{proof}
+The class-specific initial rotation and late flag templates give exact membership in each of the
+eight non-fixed classes.  Proposition \ref{bothverdicts} computes both Fr\'echet-variance verdicts
+for those same flag-valued estimands.  Fixed estimands retain the universal equality conclusion of
+the fixed-estimand learning theorem.
+\end{proof}
+
+\begin{remark}[Same-estimand and RCD scope]
+The theorem is a same-estimand result: it does not combine an unrelated structural witness with a
+scalar hidden-sign calculation.  The posterior kernels are the explicit canonical finite-state
+RCDs described in the proof.  The result does not assert a universal RCD-existence theorem on
+arbitrary pseudometric spaces.
+\end{remark}
+
+
+\section{Class-specific learning for sequential estimands}
+
+\begin{prop}[Conditional stochastic domination of the discrepancy]
+\label{tailorder}
+Let $(S,d)$ be a separable pseudometric space with $\mathcal{B}_d(S)\subseteq\I$, let $K_\infty$ and
+$(K_n)_{n\le f(\Theta)}$ be $(\U,\I)$-measurable $S$-valued random elements, and set
+$R_n:=d(K_n,K_\infty)$, with $R_m:=R_{f(\Theta)}$ for $m>f(\Theta)$. Let $\G\subseteq\U$ be a
+sub-$\sigma$-algebra and, for each $n$, let $\nu_n$ be a regular conditional distribution of $R_n$
+given $\G$.
+
+If $R_{n+1}\leq R_n$ a.s.\ for every $n$, as holds, in particular,
+when the sequential estimand is monotonic, then for all $m\geq n$,
+\[
+\nu_m(\omega,\cdot)\ \preceq_{\mathrm{st}}\ \nu_n(\omega,\cdot)\qquad\text{for }\mathbb{P}\text{-a.e. }\omega,
+\]
+where $\preceq_{\mathrm{st}}$ denotes the usual stochastic order. Equivalently, off a single null set,
+\[
+\Pr(R_m>t\mid\G)(\omega)\;\le\;\Pr(R_n>t\mid\G)(\omega)\qquad\text{for every }t\ge0
+\text{ simultaneously.}
+\]
+\end{prop}
+
+\begin{proof}
+\textit{Measurability.} Separability of $(S,d)$ gives second countability, hence
+$\mathcal{B}_d(S\times S)=\mathcal{B}_d(S)\otimes\mathcal{B}_d(S)$. The map $d$ is continuous on
+$S\times S$, hence $\mathcal{B}_d(S)\otimes\mathcal{B}_d(S)$-measurable, hence
+$\I\otimes\I$-measurable since $\mathcal{B}_d(S)\subseteq\I$. As $(K_n,K_\infty)$ is
+$(\U,\I\otimes\I)$-measurable, each $R_n$ is a $[0,\infty)$-valued random variable, so the required
+regular conditional distributions exist.
+
+\textit{Domination.} Fix $m\ge n$ and let $\pi$ be a regular conditional distribution of the pair
+$(R_n,R_m)$ given $\G$; its marginals are versions of $\nu_n$ and $\nu_m$. Monotonicity gives
+$R_m\le R_n$ a.s., so with $B:=\{(x,y)\in[0,\infty)^2:y\le x\}$, which is closed and hence Borel, we
+have $\E[\pi(\cdot,B)]=\Pr\big((R_n,R_m)\in B\big)=1$. Since $\pi(\cdot,B)\le1$, it follows that
+$\pi(\omega,B)=1$ for a.e.\ $\omega$.
+
+Fix such an $\omega$. Then $\pi(\omega,\cdot)$ is a coupling of $\nu_n(\omega,\cdot)$ and
+$\nu_m(\omega,\cdot)$ that is concentrated on $\{y\le x\}$, so for every $t\ge0$,
+\[
+\nu_m(\omega,(t,\infty))=\pi\big(\omega,\{(x,y):y>t\}\big)
+\le\pi\big(\omega,\{(x,y):x>t\}\big)=\nu_n(\omega,(t,\infty)),
+\]
+the inequality by inclusion of the two sets within $B$. As the exceptional null set does not depend
+on $t$, this is the asserted stochastic domination; the displayed equivalent form follows by taking
+$\Pr(R_j>t\mid\G):=\nu_j(\cdot,(t,\infty))$ as versions.
+\end{proof}
+
+\begin{cor}[Tail supermartingale]
+\label{tailsupermart}
+Under the hypotheses of Proposition \ref{tailorder} with $\G=\F_n$, for each fixed $t\ge0$ the
+process $G_n(t):=\Pr(R_n>t\mid\F_n)$ is a $[0,1]$-valued supermartingale. More generally, for
+$\mathcal{G}\subseteq\mathcal{H}\subseteq\mathcal{U}$ and $m\ge n$,
+$\E\big[\Pr(R_m>t\mid\mathcal{H})\mid\mathcal{G}\big]\le\Pr(R_n>t\mid\mathcal{G})$ a.s.; in particular
+$\E\big[\Pr(R_{f(\Theta)}>t\mid\F_{\mathrm{obs}})\mid\F_n\big]\le G_n(t)$.
+\end{cor}
+
+\begin{cor}[Increasing loss functions]
+\label{tailloss}
+Let $g:\mathbb R\to\mathbb R$ be non-decreasing on $[0,\infty)$. If $g$ is bounded on $[0,\infty)$, or if $\E|g(R_0)|<\infty$, then for all
+$m\ge n$,
+\[
+\E[g(R_m)\mid\G]\;\le\;\E[g(R_n)\mid\G]\quad\text{a.s.}
+\]
+\end{cor}
+
+\begin{proof}
+Set $g_+(r):=g(\max\{r,0\})$. This extension is non-decreasing on all of
+$\mathbb R$, hence Borel measurable. Since every discrepancy satisfies
+$R_j\ge0$, one has $g_+(R_j)=g(R_j)$ at every stage. Applying conditional
+expectation to the pointwise order $g_+(R_m)\le g_+(R_n)$ gives the result;
+the two stated alternatives supply integrability exactly as before.
+\end{proof}
+
+Taking $g(r)=r^2$ shows that $\E[d^2(K_n,K_\infty)\mid\F_n]$ is a supermartingale whenever
+$\E[d^2(K_0,K_\infty)]<\infty$. This is not $V_n$, and neither quantity dominates the other: the
+infimum defining $V_n$ ranges over deterministic $s\in S$, whereas $K_\infty$ is in general not
+$\F_n$-measurable. If $\F_n$ is trivial and $K_n=K_\infty$ is non-degenerate then
+$\E[d^2(K_n,K_\infty)\mid\F_n]=0$ while $V_n>0$; conversely if $K_n$ is $\F_n$-measurable and
+$d(K_n,K_\infty)>0$ then $V_n=0$ while $\E[d^2(K_n,K_\infty)\mid\F_n]>0$. The target approaching its
+limit and the analyst approaching the target are distinct phenomena.
+
+\subsection*{Reducible, oracle-resolvable, and residual uncertainty}
+
+\begin{prop}[Refinement of the decomposition]
+\label{threeway}
+Let $K_\infty$ satisfy the hypotheses of Lemma \ref{masterlemma}, let
+$\F_\infty\subseteq\mathcal{H}\subseteq\U$, and suppose regular conditional distributions of
+$K_\infty$ given $\F_\infty$ and given $\mathcal{H}$ exist. Then for every $n$,
+\[
+V(K_\infty\mid\F_n)
+=\underbrace{\Gamma(K_\infty;\F_n,\F_\infty)}_{\text{reducible by further observation}}
++\underbrace{\E\big[\Gamma(K_\infty;\F_\infty,\mathcal{H})\mid\F_n\big]}_{\text{resolved by the enlargement}}
++\underbrace{\E\big[V(K_\infty\mid\mathcal{H})\mid\F_n\big]}_{\text{residual}}
+\quad\text{a.s.},
+\]
+all three terms being non-negative.
+\end{prop}
+
+\begin{proof}
+By definition of $\Gamma$,
+$V(K_\infty\mid\F_n)=\Gamma(K_\infty;\F_n,\F_\infty)+\E[V(K_\infty\mid\F_\infty)\mid\F_n]$ and
+$V(K_\infty\mid\F_\infty)=\Gamma(K_\infty;\F_\infty,\mathcal{H})+\E[V(K_\infty\mid\mathcal{H})\mid\F_\infty]$.
+Substituting the second into the first and applying the tower property to the last term gives the
+display; non-negativity of the first two terms is Lemma \ref{masterlemma} and of the third is the
+definition of $V$.
+\end{proof}
+
+\begin{remark}
+Proposition \ref{threeway} makes precise a qualification implicit in the two-term decomposition:
+uncertainty is never irreducible \emph{simpliciter}, only irreducible relative to a stated
+information set. Iterating the identity along any increasing family of $\sigma$-algebras refines
+the residual indefinitely, and what is called irreducible at one level is reducible at the next.
+The remainder of this section applies the identity to the smallest non-trivial enlargement of
+$\F_\infty$ that the taxonomy supplies.
+\end{remark}
+
+\subsection*{The absorption oracle}
+
+\begin{definition}[Absorption oracle]
+\label{oracledef}
+Let $A:=\bigcup_{k}\big(\widetilde E_k\cap\{f(\Theta)=k\}\big)$ be the event that absorption has
+occurred by the final observed stage, and set
+\[
+\F^E_\infty:=\F_\infty\vee\sigma(A),\qquad p_\infty:=\Pr(A\mid\F_\infty).
+\]
+\end{definition}
+
+\begin{lemma}
+\label{oraclewelldef}
+$A\in\U$, and $\sigma(A)$ is generated by a single event; $\F^E_\infty$ is the smallest
+$\sigma$-algebra containing $\F_\infty$ and resolving absorption status.
+\end{lemma}
+
+\begin{proof}
+Each $\widetilde E_k$ is $\U$-measurable by assumption and $\{f(\Theta)=k\}$ is
+$\sigma(\Theta)$-measurable, so $A$ is a countable union of $\U$-measurable sets. The remaining
+claims are immediate.
+\end{proof}
+
+\begin{remark}
+The enlargement is a single bit. The middle term of Proposition \ref{threeway} with
+$\mathcal{H}=\F^E_\infty$ therefore quantifies not the vague possibility that more information
+would help, but the value of one specific binary latent fact, after the observational data are
+exhausted.
+\end{remark}
+
+\subsection*{When the oracle is strictly valuable}
+
+\begin{prop}[Strict oracle gap]
+\label{oraclestrict}
+Write $\mu_A,\mu_{A^c}$ for regular conditional distributions of $K_\infty$ given
+$\F_\infty\vee\sigma(A)$ restricted to $A$ and to $A^c$ respectively, and set
+\[
+G:=\big\{0<p_\infty<1\big\}\cap
+\Big\{\text{no sequence }(s_j)\subset S\text{ has }\phi_{\mu_A}(s_j)\to V(\mu_A)
+\text{ and }\phi_{\mu_{A^c}}(s_j)\to V(\mu_{A^c})\Big\}.
+\]
+Then $G\in\F_\infty$, and
+\[
+\Gamma(K_\infty;\F_\infty,\F^E_\infty)>0\ \text{ on }G,
+\qquad
+\Gamma(K_\infty;\F_\infty,\F^E_\infty)=0\ \text{ on }\Omega\setminus G,
+\]
+a.s. In particular the oracle is strictly valuable in expectation if and only if $\Pr(G)>0$.
+Moreover, if for some $\epsilon>0$ the sets
+$\{s:\phi_{\mu_A}(s)<V(\mu_A)+\epsilon\}$ and $\{s:\phi_{\mu_{A^c}}(s)<V(\mu_{A^c})+\epsilon\}$ are
+disjoint, then
+\[
+\Gamma(K_\infty;\F_\infty,\F^E_\infty)\;\ge\;\min\big(p_\infty,1-p_\infty\big)\,\epsilon .
+\]
+\end{prop}
+
+\begin{proof}
+By Corollary \ref{oraclegap} (\ref{eq:gammaA}) with $\mathcal{G}=\F_\infty$,
+\[
+\Gamma(K_\infty;\F_\infty,\F^E_\infty)
+=\inf_{s\in S}\Big[p_\infty\big(\phi_{\mu_A}(s)-V(\mu_A)\big)
++(1-p_\infty)\big(\phi_{\mu_{A^c}}(s)-V(\mu_{A^c})\big)\Big],
+\]
+both bracketed terms being non-negative for every $s$.
+
+On $\{p_\infty=0\}$ we have $A\cap\{p_\infty=0\}$ null, so $\F^E_\infty$ and $\F_\infty$ agree there
+and $\Gamma=0$; symmetrically on $\{p_\infty=1\}$. On $\{0<p_\infty<1\}$, the infimum in
+\eqref{eq:gammaA} is zero if and only if there is a sequence $(s_j)$ driving both weighted terms to
+zero, which since the weights are strictly positive is exactly a common approximate minimising
+sequence. This gives both displayed claims, and shows that $\Gamma>0$ precisely on $G$.
+
+For measurability, $p_\infty$ is $\F_\infty$-measurable by definition, and by Lemma
+\ref{Vwellposed}(ii) the infimum in \eqref{eq:gammaA} may be taken over a countable dense
+$D\subset S$, exhibiting $\Gamma$ as an $\F_\infty$-measurable random variable; hence
+$G=\{0<p_\infty<1\}\cap\{\Gamma>0\}\in\F_\infty$.
+
+For the quantitative bound, let $s\in S$ be arbitrary. By disjointness $s$ fails to lie in at least
+one of the two sets, so at least one bracketed term in \eqref{eq:gammaA} is at least $\epsilon$;
+the corresponding weight is at least $\min(p_\infty,1-p_\infty)$, and the other term is
+non-negative. Taking the infimum over $s$ gives the claim.
+\end{proof}
+
+\begin{cor}[Hilbert form]
+\label{oraclehilbert}
+If $S=\mathbb{H}$ is a separable real Hilbert space with $d(x,y)=\|x-y\|$ and $K_\infty$ is
+square-integrable, then with
+$m_A:=\E[K_\infty\mid\F_\infty,A]$ and $m_{A^c}:=\E[K_\infty\mid\F_\infty,A^c]$,
+\[
+\Gamma(K_\infty;\F_\infty,\F^E_\infty)=p_\infty(1-p_\infty)\,\big\|m_A-m_{A^c}\big\|^2 .
+\]
+Consequently $G=\{0<p_\infty<1\}\cap\{m_A\ne m_{A^c}\}$: the oracle is strictly valuable exactly
+where both absorption statuses remain possible and they imply different posterior means for the
+limit estimand.
+\end{cor}
+
+\begin{proof}
+In $\mathbb{H}$ the infimum defining $V$ is attained at the conditional mean, so
+$\phi_{\mu_A}(s)-V(\mu_A)=\|s-m_A\|^2$ and likewise for $A^c$. The map
+$s\mapsto p_\infty\|s-m_A\|^2+(1-p_\infty)\|s-m_{A^c}\|^2$ is minimised at
+$s=p_\infty m_A+(1-p_\infty)m_{A^c}$ with value $p_\infty(1-p_\infty)\|m_A-m_{A^c}\|^2$;
+substituting into \eqref{eq:gammaA} gives the identity, and the characterisation of $G$ follows.
+\end{proof}
+
+\begin{remark}
+The two conditions defining $G$ must hold at the same $\omega$. Unresolvedness alone gives nothing:
+where absorption status is $\F_\infty$-measurable the enlargement is trivial however differently
+the two conditional laws would sit. Separation alone gives nothing either: where $p_\infty\in\{0,1\}$
+only one branch has mass. It is their intersection that certifies a strictly positive gap, and
+Corollary \ref{oraclehilbert} shows that the familiar Hilbert condition --- absorption unresolved
+and the posterior mean of $K_\infty$ moving with the status --- is this intersection in the case
+where minimisers exist and are means.
+\end{remark}
+
+\subsection*{Mean squared error against the limit estimand}
+
+The analyst reports a point estimate of the sequential estimand currently in view. In a Hilbert
+space the Bayes estimate of $K_n$ under squared loss is the posterior mean
+$\widehat K_n:=\E[K_n\mid\F_n]$, so it is natural to ask how well $\widehat K_n$ performs against
+the scientifically relevant target $K_\infty$. Write
+\[
+M_n:=\E\big[\|K_\infty-\widehat K_n\|^2\;\big|\;\F_n\big],
+\qquad
+H_n:=K_\infty-K_n,
+\qquad
+R_n:=\|H_n\|=d(K_n,K_\infty),
+\]
+and let $G_n(0)=\Pr(R_n>0\mid\F_n)$ be the discrepancy tail at zero, as in Corollary
+\ref{tailsupermart}. Throughout this subsection $K_\infty$ and $(K_n)$ are square-integrable and
+$\E[R_0^2]<\infty$.
+
+\begin{prop}[Exact decomposition of the mean squared error]
+\label{msedecomp}
+For every $n$,
+\[
+M_n=\Var(K_\infty\mid\F_n)+\big\|\E[H_n\mid\F_n]\big\|^2
+\qquad\text{a.s.},
+\]
+and consequently $M_n\ge\Var(K_\infty\mid\F_n)$, with equality if and only if
+$\E[H_n\mid\F_n]=0$ a.s.
+\end{prop}
+
+\begin{proof}
+Write
+$K_\infty-\widehat K_n=\big(K_\infty-\E[K_\infty\mid\F_n]\big)+\big(\E[K_\infty\mid\F_n]-\widehat K_n\big)$.
+The first bracket is conditionally centred, and the second is $\F_n$-measurable and equals
+$\E[K_\infty-K_n\mid\F_n]=\E[H_n\mid\F_n]$. Expanding the squared norm, the cross term vanishes on
+taking $\E[\,\cdot\mid\F_n]$, leaving
+$\E[\|K_\infty-\E[K_\infty\mid\F_n]\|^2\mid\F_n]+\|\E[H_n\mid\F_n]\|^2$, which is the display.
+\end{proof}
+
+The second term is a squared conditional bias: it is the price of estimating the sequential
+estimand rather than its limit. Had the analyst reported $\E[K_\infty\mid\F_n]$, the mean squared
+error would have been $\Var(K_\infty\mid\F_n)$ exactly.
+
+\begin{lemma}[Discrepancy weighting of the bias]
+\label{biasweight}
+For every $n$,
+\[
+\big\|\E[H_n\mid\F_n]\big\|^2\;\le\;G_n(0)\,\E\big[R_n^2\mid\F_n\big]\qquad\text{a.s.}
+\]
+\end{lemma}
+
+\begin{proof}
+Since $\|\cdot\|$ is a metric on $\mathbb{H}$, $R_n=0$ implies $H_n=0$, so
+$H_n=\1\{R_n>0\}H_n$ pointwise. Let $u$ be the $\F_n$-measurable $\mathbb{H}$-valued random element
+equal to $\E[H_n\mid\F_n]/\|\E[H_n\mid\F_n]\|$ where the denominator is positive and to $0$
+elsewhere, so that $\|u\|\le1$ and
+$\langle\E[H_n\mid\F_n],u\rangle=\|\E[H_n\mid\F_n]\|$. Pulling out the
+$\F_n$-measurable $u$ and applying the
+conditional Cauchy--Schwarz inequality to the scalar product $\1\{R_n>0\}\langle H_n,u\rangle$,
+\[
+\big\|\E[H_n\mid\F_n]\big\|
+=\E\big[\1\{R_n>0\}\langle H_n,u\rangle\mid\F_n\big]
+\le\Pr(R_n>0\mid\F_n)^{1/2}\,\E\big[\langle H_n,u\rangle^2\mid\F_n\big]^{1/2},
+\]
+and $\langle H_n,u\rangle^2\le\|H_n\|^2\|u\|^2\le R_n^2$ by Cauchy--Schwarz in $\mathbb{H}$. Squaring gives
+the claim.
+\end{proof}
+
+\begin{theorem}[Mean squared error hierarchy]
+\label{msehierarchy}
+Set $B_n:=\Var(K_\infty\mid\F_n)+\E[R_n^2\mid\F_n]$. Then for every $n$,
+\[
+\Var(K_\infty\mid\F_n)\;\le\;M_n\;\le\;\Var(K_\infty\mid\F_n)+G_n(0)\,\E\big[R_n^2\mid\F_n\big]
+\;\le\;B_n\qquad\text{a.s.}
+\]
+If in addition the sequential estimand is monotonic, then $\Var(K_\infty\mid\F_n)$ and $B_n$ are
+both non-negative supermartingales with respect to $(\F_n)$, as is their difference
+$\E[R_n^2\mid\F_n]$.
+\end{theorem}
+
+\begin{proof}
+The first inequality and the equality $M_n=\Var(K_\infty\mid\F_n)+\|\E[H_n\mid\F_n]\|^2$ are
+Proposition \ref{msedecomp}; the second is Lemma \ref{biasweight}; the third is $G_n(0)\le1$.
+
+For the supermartingale claims, $K_\infty$ is a permutation-invariant estimand and hence fixed along
+the filtration, so $\Var(K_\infty\mid\F_n)=V(K_\infty\mid\F_n)$ is a non-negative supermartingale by
+Corollary \ref{fixedlearning}. Under monotonicity $R_{n+1}\le R_n$ a.s., so Corollary
+\ref{tailloss} with $g(r)=r^2$, which is non-decreasing on $[0,\infty)$ and satisfies
+$\E[g(R_0)]<\infty$ by hypothesis, gives $\E[R_{n+1}^2\mid\F_n]\le\E[R_n^2\mid\F_n]$; by the tower
+property this is $\E\big[\E[R_{n+1}^2\mid\F_{n+1}]\mid\F_n\big]\le\E[R_n^2\mid\F_n]$, so
+$\big(\E[R_n^2\mid\F_n]\big)_n$ is a non-negative supermartingale. Their sum $B_n$ is then a
+non-negative supermartingale.
+\end{proof}
+
+\begin{cor}[Absorbing classes]
+\label{mseabsorbing}
+If the sequential estimand is absorbing, then $\{R_n=0\}=E_n$ up to null sets, so
+$G_n(0)=\Pr(E_n^c\mid\F_n)$ and the middle bound of Theorem \ref{msehierarchy} reads
+\[
+M_n\;\le\;\Var(K_\infty\mid\F_n)+\Pr\big(E_n^c\mid\F_n\big)\,\E\big[R_n^2\mid\F_n\big].
+\]
+\end{cor}
+
+\begin{proof}
+$E_n\subseteq\{K_n=K_\infty\}$ by definition of the persistence event, and in the absorbing classes
+$\widetilde K_n(\xi)=K_\infty$ implies $\widetilde E_n(\xi)$ for a.e.\ $\omega$ and every $\xi$,
+which gives the reverse inclusion on the realised path. As $\|\cdot\|$ is a metric,
+$\{K_n=K_\infty\}=\{R_n=0\}$.
+\end{proof}
+
+\begin{cor}[Fixed estimands]
+\label{msefixed}
+If the estimand is fixed then $R_n\equiv0$, so all four quantities in Theorem \ref{msehierarchy}
+coincide and $M_n=\Var(K_\infty\mid\F_n)$, a non-negative supermartingale.
+\end{cor}
+
+\begin{remark}
+Since $\mathbb{H}$ is a metric space, the mixed monotonic and non-absorbing monotonic classes are
+empty here, as noted in Section~\ref{sec:classes}. The nesting available in Theorem
+\ref{msehierarchy} is therefore
+\[
+\text{monotonic}\;\supset\;\text{absorbing monotonic}\;\supset\;\text{fixed},
+\]
+with the middle rung sharpening the bound at each $n$ and the outer rung supplying its dynamics.
+The two ends of the sandwich are both supermartingales under monotonicity, and their gap
+$\E[R_n^2\mid\F_n]$ is a supermartingale as well, so the sandwich tightens on average as
+observations accumulate. The lower end is exactly the value $M_n$ would take were the estimand
+already at its limit, and the upper end adds the full mean squared discrepancy: the classes govern
+the passage between the two.
+\end{remark}
+
+\begin{remark}[Non-monotonic classes]
+\label{msenonmono}
+Proposition \ref{msedecomp} and Lemma \ref{biasweight} use no class hypothesis, so the exact
+identity and the weighted bound hold for every sequential estimand. What fails without monotonicity
+is that $\E[R_n^2\mid\F_n]$ and $G_n(0)$ are supermartingales, since $R_{n+1}\le R_n$ may fail and
+$\{R_{n+1}>0\}\subseteq\{R_n>0\}$ with it. The upper end of the sandwich then has no dynamics, and
+multiplying an uncontrolled quantity by a factor in $[0,1]$ leaves it uncontrolled: absorption does
+not repair this, because it controls the weight and not the discrepancy. The lower end survives
+untouched, since $K_\infty$ is fixed along the filtration whatever the class. Non-monotonic
+estimands are therefore bounded below by a supermartingale and above by nothing.
+\end{remark}
+
+\begin{remark}[What each class property contributes]
+\label{mseattribution}
+It is worth separating the roles. The identity of Proposition \ref{msedecomp} and the bound of
+Lemma \ref{biasweight} require only square-integrability. Monotonicity is what makes
+$\E[R_n^2\mid\F_n]$ a supermartingale, and hence what gives the hierarchy its dynamics; by
+Corollary \ref{tailsupermart} it also makes $G_n(0)$ non-increasing in conditional expectation,
+though the product of the two need not be a supermartingale. Absorption contributes no inequality
+of its own: by Corollary \ref{mseabsorbing} it identifies $G_n(0)$ with the posterior probability
+that absorption has not yet occurred, turning an anonymous discrepancy tail into a quantity the
+taxonomy names. In the practically relevant error, monotonicity is the class property doing
+mathematical work and absorption is the one supplying interpretation.
+\end{remark}
+
+\section{Acknowledgements}
+This research was supported by the National Institute for Health and Care Research (NIHR) Cambridge Biomedical Research Centre (NIHR203312). The views expressed are those of the authors and not necessarily those of the NIHR or the Department of Health and Social Care. This work was supported in part by a grant of access to OpenAI models through the ChatGPT for Academic Researchers program. We would like to thank the attendees of the Neural Inference for Bayesian Phylodynamics and Genetic Epidemiology workshop supported by the EPSRC Probabilistic AI Hub (EP/Y028783/1) for helping to find examples of phylogenetically relevant estimands for the different estimand classes. I used ChatGPT for Academic Researchers (OpenAI) and Claude Opus (Anthropic) as discussion partners for criticism of the manuscript's framing and argument, proof generation and formal verification, editorial suggestions, and for copy-editing and language refinement. 
+
+\bibliographystyle{apalike}
+\bibliography{references}
+
+\section{Appendix}
+\begin{proof}[Proof of Lemma \ref{Vwellposed}]
+First note that for any probability measure $\mu$ and any $s,s'\in S$, the triangle inequality gives
+$d(x,s)\le d(x,s')+d(s,s')$,
+and hence, by the triangle inequality in $L^2(\mu)$,
+$\Psi(\mu,s)
+=\big\|d(\cdot,s)\big\|_{L^2(\mu)}
+\le
+\big\|d(\cdot,s')\big\|_{L^2(\mu)}+d(s,s')
+=
+\Psi(\mu,s')+d(s,s')$, with the inequality is understood in $[0,\infty]$.
+
+(i) Suppose $\Psi(\mu,s_1)<\infty$ for some $s_1\in S$. The preceding inequality with $s'=s_1$
+gives
+$\Psi(\mu,s)\le\Psi(\mu,s_1)+d(s,s_1)<\infty$
+for every $s\in S$. Hence $\Psi(\mu,\cdot)$ is either finite everywhere or infinite everywhere,
+and by definition $\mathcal{P}_2(S)$ is exactly the set of $\mu$ for which the first alternative holds.
+
+(ii) If $\mu\in\mathcal{P}_2(S)$ then $\Psi(\mu,\cdot)$ is real-valued by (i). Applying the
+preceding inequality with $s$ and $s'$ interchanged gives=
+$\big|\Psi(\mu,s)-\Psi(\mu,s')\big|\le d(s,s')$,
+so $\Psi(\mu,\cdot)$ is $1$-Lipschitz, hence continuous. As
+$\phi_\mu=\Psi(\mu,\cdot)^2$ is then continuous and $D$ is dense,
+$\inf_S\phi_\mu=\inf_D\phi_\mu$. Otherwise both sides equal $\infty$ by (i). The bound
+$V(\mu)\le\phi_\mu(s)$ is the definition of the infimum.
+
+(iii) Fix $s_k\in D$. The function $d^2(\cdot,s_k)$ is non-negative and $\I$-measurable, so
+$\int d^2(x,s_k)\,\mu^X_\mathcal{A}(\omega,dx)$ is defined in $[0,\infty]$ for every $\omega$, and
+likewise for $\tilde\mu^X_\mathcal{A}$. Both are versions of the extended conditional expectation
+$\E[d^2(X,s_k)\mid\mathcal{A}]\in[0,\infty]$, by the defining property of a regular conditional
+distribution applied to non-negative measurable functions, and hence agree a.s. As $D$ is countable
+and fixed in advance, the equalities hold simultaneously for all $k$ off a single null set, where
+(ii) gives $V(\mu^X_\mathcal{A})=\inf_k\phi_{\mu^X_\mathcal{A}}(s_k)
+=\inf_k\phi_{\tilde\mu^X_\mathcal{A}}(s_k)=V(\tilde\mu^X_\mathcal{A})$.
+
+(iv) For each $s$ the map $x\mapsto d^2(x,s)$ is $d$-continuous, hence $\mathcal{B}_d(S)$- hence
+$\I$-measurable since $\mathcal{B}_d(S)\subseteq\I$.  For every $s\in S$, by the triangle inequality and $(a+b)^2\le 2a^2+2b^2$, we have  $\E[d^2(X,s)] \le 2\E [d^2(X,s_0)]+2d^2(s_0,s)<\infty$. Therefore, by the defining property of a regular conditional distribution, $\phi_{\mu^X_\mathcal{A}}(s)$ is a version of
+$\E[d^2(X,s)\mid\mathcal{A}]$, and
+in particular each $\phi_{\mu^X_\mathcal{A}}(s)$ is $\mathcal{A}$-measurable. By (ii),
+$V(X\mid\mathcal{A})=\inf_{s\in D}\phi_{\mu^X_\mathcal{A}}(s)$ pointwise, a countable infimum of
+$\mathcal{A}$-measurable random variables, and
+$\E\big[\phi_{\mu^X_\mathcal{A}}(s_0)\big]=\E[d^2(X,s_0)]<\infty$, so $V(X\mid\mathcal{A})\in L^1$ and finite a.s.
+\end{proof}
+
+
+\begin{proof}[Proof of Lemma \ref{psilip}]
+(i) Let $\pi$ be any coupling of $\mu$ and $\nu$, with coordinates $(X,Y)$. Pointwise
+$|d(x,s)-d(y,s')|\le d(x,y)+d(s,s')$ by two applications of the triangle inequality, so by the
+triangle inequality in $L^2(\pi)$,
+\[
+\Psi(\mu,s)=\big\|d(X,s)\big\|_{L^2(\pi)}
+\le\big\|d(Y,s')\big\|_{L^2(\pi)}+\big\|d(X,s)-d(Y,s')\big\|_{L^2(\pi)}
+\le\Psi(\nu,s')+\big\|d(X,Y)\big\|_{L^2(\pi)}+d(s,s'),
+\]
+and taking the infimum over couplings gives \eqref{eq:psilip}.
+
+(ii) By Lemma \ref{Vwellposed}(i), $\Psi(\mu,\cdot)$ is finite everywhere. Taking $\nu=\mu$ in
+\eqref{eq:psilip}, for which the identity coupling gives $W_{2,d}(\mu,\mu)=0$, yields
+$\Psi(\mu,s)\le\Psi(\mu,s')+d(s,s')$; interchanging $s$ and $s'$ and combining the two inequalities,
+which is legitimate as both sides are finite, gives the stated bound. Setting $d(s,s')=0$ forces
+$\Psi(\mu,s)=\Psi(\mu,s')$.
+
+(iii) Taking $s=s'$ in \eqref{eq:psilip} gives $\Psi(\mu,s)\le\Psi(\nu,s)+W_{2,d}(\mu,\nu)$ for every
+$s\in S$, so
+\[
+V(\mu)^{1/2}=\inf_{s\in S}\Psi(\mu,s)\;\le\;\inf_{s\in S}\Psi(\nu,s)+W_{2,d}(\mu,\nu)
+=V(\nu)^{1/2}+W_{2,d}(\mu,\nu),
+\]
+both infima being finite by Lemma \ref{Vwellposed}(i). Interchanging $\mu$ and $\nu$ gives the
+absolute value.
+\end{proof}
+
+\begin{proof}[Proof of Lemma \ref{displacement}]
+The map $\jmath$ satisfies $\hat d(\jmath x,\jmath y)=d(x,y)$ for all $x,y\in S$, so it is
+$1$-Lipschitz, hence $\mathcal{B}_d(S)$- hence $\I$-measurable since $\mathcal{B}_d(S)\subseteq\I$; thus $\hat\mu$ is
+a well-defined Borel probability measure on $\hat S$.
+
+(i) By the change-of-variables formula and the isometry property,
+$\phi_{\hat\mu}(\jmath(s))=\int\hat d^2(\jmath x,\jmath s)\,\mu(dx)=\int d^2(x,s)\,\mu(dx)
+=\phi_\mu(s)$, so $\inf_{t\in\jmath(S)}\phi_{\hat\mu}(t)=V(\mu)$. If $V(\mu)=\infty$ then
+$\phi_{\hat\mu}$ is infinite on $\jmath(S)$, hence everywhere on $\hat S$ by Lemma
+\ref{Vwellposed}(i) applied in $\hat S$, so $V(\hat\mu)=\infty$. Otherwise $\phi_{\hat\mu}$ is
+finite and continuous on $\hat S$ as a consequence of Lemma \ref{psilip}(ii), and $\jmath(S)$ is dense in $\hat S$ by
+construction, so the infimum over $\hat S$ equals the infimum over $\jmath(S)$.
+
+(ii) For $B\in\mathcal{B}(\hat S)$ we have $\jmath^{-1}(B)\in\I$ and
+$\widehat{\mu^X_\mathcal{A}}(\cdot,B)=\mu^X_\mathcal{A}\big(\cdot,\jmath^{-1}(B)\big)$, which is
+$\mathcal{A}$-measurable because $\mu^X_\mathcal{A}$ is a kernel and is a version of
+$\Pr\big(X\in\jmath^{-1}(B)\mid\mathcal{A}\big)=\Pr\big(\jmath(X)\in B\mid\mathcal{A}\big)$; as
+$\widehat{\mu^X_\mathcal{A}}(\omega,\cdot)$ is a probability measure on $\mathcal{B}(\hat S)$ for each
+$\omega$, it is a regular conditional distribution of $\jmath(X)$ given $\mathcal{A}$. Since
+$\hat S$ is Polish, the Borel $\sigma$-algebra of $\mathcal{P}(\hat S)$ for the weak topology is
+generated by the evaluations $\pi\mapsto\pi(B)$, $B\in\mathcal{B}(\hat S)$
+\citep[Ch.~II]{Parthasarathy1967}, which gives the asserted measurability; and regular conditional
+distributions of an $\hat S$-valued random element are a.s.\ unique as $\mathcal{P}(\hat
+S)$-valued maps, since agreement a.s.\ on a countable generating algebra of $\mathcal{B}(\hat S)$ extends to
+agreement of the measures outside a single null set.
+
+(iii) \emph{Measurability.} The cost $\hat d^2$ is continuous and non-negative on the Polish space
+$\hat S$, so $W_{2,\hat d}$ is lower semicontinuous on $\mathcal{P}(\hat S)^2$ for the weak topology
+\citep[Ch.~6]{Villani2009}, hence Borel; composing with the measurable map of (ii) gives
+$\mathcal{A}$-measurability of $\Delta$. \emph{Version-independence} is immediate from the a.s.\
+uniqueness in (ii), since $W_{2,\hat d}$ is a fixed function on $\mathcal{P}(\hat S)^2$.
+
+\emph{Coupling.} Let $\Phi(x,y):=(\jmath x,\jmath y)$, which is $\I\otimes\I$-measurable, and set
+$\hat\rho(\omega):=\Phi_{\#}\rho(\omega,\cdot)$. Its marginals are regular conditional distributions
+of $\jmath(X)$ and of $\jmath(Y)$ given $\mathcal{A}$, so by the uniqueness in (ii) they coincide
+with $\widehat{\mu^X_\mathcal{A}}$ and $\widehat{\mu^Y_\mathcal{A}}$ outside a single null set;
+off that set $\hat\rho(\omega)$ is an admissible coupling and
+\[
+\Delta^2(\omega)\;\le\;\int_{\hat S\times\hat S}\hat d^2\,d\hat\rho(\omega)
+=\int_{S\times S}d^2(x,y)\,\rho(\omega,dx\,dy),
+\]
+the right-hand side being a version of $\E[d^2(X,Y)\mid\mathcal{A}]$ by the defining property of a
+regular conditional distribution applied to the non-negative $\I\otimes\I$-measurable function
+$d^2$. Taking expectations and using the tower property gives $\E[\Delta^2]\le\E[d^2(X,Y)]$.
+\end{proof}
+
+\subsection*{Appendix: witnesses for each class}
+
+\begin{lemma}[Class witnesses]
+\label{witnesses}
+Each row of Table \ref{tab:classes} is realised on the finite probability space of Construction
+\ref{obsmaps} by a hypothetical sequential estimand in the flag space of Lemma \ref{flagspace}.
+The canonical greatest constraint family is used in every row, and all three class-defining events
+are measurable.
+\end{lemma}
+
+\begin{table}
+\caption{Canonical witnesses with horizon $z=6$. The displayed discrepancy path is common to all
+latent states and revelation orders. The limit is $(0,1)$; $0^-$ denotes the distinct point
+$(0,0)$ at zero pseudodistance from it.}
+\label{tab:classes}
+\begin{tabular}{lll}
+\hline
+class & $r$-path $(r_0,\dots,r_6)$ & equality template\\
+\hline
+fixed & $0,0,0,0,0,0,0$ & equal throughout\\
+absorbing monotonic & $3,2,1,1,0,0,0$ & persistent\\
+absorbing non-monotonic & $1,2,1,1,0,0,0$ & persistent\\
+mixed monotonic & $3,2,1,1,0,0,0$ & mixed\\
+mixed non-monotonic & $1,2,1,1,0,0,0$ & mixed\\
+non-absorbing monotonic & $3,2,1,1,0,0,0$ & accidental\\
+non-absorbing non-monotonic & $1,2,1,1,0,0,0$ & accidental\\
+terminal monotonic & $3,2,1,1,0,0,0$ & unequal until terminal\\
+terminal non-monotonic & $1,2,1,1,0,0,0$ & unequal until terminal\\
+\hline
+\end{tabular}
+\end{table}
+
+\paragraph{Flag templates.} In every non-fixed row the real coordinate is nonzero through stage
+$3$ and zero from stage $4$ onward, so literal equality from stage $4$ is governed by the flag
+alone. Each template is a measurable function of the latent state and $n$ only, hence is
+prefix-compatible and terminally compatible in the sense of Definition \ref{flagadmissible}.
+
+\emph{Persistent:} the flag equals the limit flag at stages $4,5,6$. The predicate
+$c_n(\xi):=\1\{n\ge4\}$ satisfies value preservation because literal equality holds at every stage
+$n\ge4$. Structural support is vacuous: whenever $c_n=1$ and $n<z$, also $c_{n+1}=1$, so the
+antecedent requiring $c_{n+1}=0$ never occurs. Hence every instance of equality is certified and the
+estimand is absorbing.
+
+\emph{Accidental:} the flag equals the limit flag at stage $4$, differs at stage $5$, and returns
+to the limit flag at stage $6$. At stages $0,1,2,3$ the real coordinate is nonzero, so equality
+fails. At $n=4$ equality holds, but no valid structural constraint can be instantiated
+there: if $c\in C_{K_\infty}$ had $c_4(\xi)(\omega)=1$, then value preservation applied to
+$\widetilde K_4(\xi)(\omega)=K_\infty(\omega)$ would force
+$\widetilde K_5(\xi)(\omega)=K_\infty(\omega)$, contradicting the stage-$5$ flag. Hence
+$\widetilde E_4(\xi)(\omega)$ fails. At $n=5$ literal equality fails. At $n=6=z$ equality returns,
+but the definitions of achievability quantify over $n<z$, so this does not count. Therefore equality
+is achievable and persistence is not: the estimand is non-absorbing.
+
+\emph{Mixed:} using the spare branch component $B$, use the persistent template on $\{B=0\}$ and
+the accidental template on $\{B=1\}$. On $\{B=0\}$ the predicate
+$c_n(\xi):=\1\{n\ge4\}\1\{B=0\}$ depends on the latent state and on $n$ only, hence is admissible,
+and certifies equality as in the persistent template, so persistence is achievable. On $\{B=1\}$ the
+argument of the accidental template applies verbatim: equality holds at $n=4$ and
+$\widetilde E_4(\xi)(\omega)$ fails. Both events have positive probability, so persistence is
+achievable and some equality is accidental. Note that the two branches are indistinguishable in the
+pseudometric: the $r$-path is common to all latent states, so the mixed classification rests
+entirely on $B$ through the distinction between $d(K_4,K_\infty)=0$ and $K_4=K_\infty$. This is
+precisely the distinction that the $\sigma$-algebra $\I$ was introduced to preserve, and which the
+Borel pseudometric $\sigma$-algebra cannot express. The two branch events have positive probability
+under the uniform finite law.
+
+\end{document}
